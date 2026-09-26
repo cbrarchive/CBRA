@@ -4208,6 +4208,12 @@ async function deletePersonSource(
     );
 
 }
+// ============================================================
+// Mental Health / Behavioral Document Storage
+// ============================================================
+
+const MENTAL_HEALTH_BUCKET =
+    "mental-health-documents";
 
 
 // ============================================================
@@ -4310,20 +4316,30 @@ async function loadPersonMentalHealth(
 
                 <h3>
 
-                    <a
-                        href="${escapeHtml(
-                            documentData.document_url
-                        )}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        ${escapeHtml(
-                            documentData.title ||
-                            "Behavioral / Mental Health Document"
-                        )}
-                    </a>
+                    ${
+                        documentData.document_url
+                            ? `
+                                <a
+                                    href="${escapeHtml(
+                                        documentData.document_url
+                                    )}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    ${escapeHtml(
+                                        documentData.title ||
+                                        "Behavioral / Mental Health Document"
+                                    )}
+                                </a>
+                            `
+                            : escapeHtml(
+                                documentData.title ||
+                                "Behavioral / Mental Health Document"
+                            )
+                    }
 
                 </h3>
+
 
                 ${
                     documentData.document_type
@@ -4338,6 +4354,7 @@ async function loadPersonMentalHealth(
                         : ""
                 }
 
+
                 ${
                     documentData.publication_date
                         ? `
@@ -4351,6 +4368,7 @@ async function loadPersonMentalHealth(
                         : ""
                 }
 
+
                 ${
                     documentData.description
                         ? `
@@ -4362,6 +4380,26 @@ async function loadPersonMentalHealth(
                         `
                         : ""
                 }
+
+
+                ${
+                    documentData.document_url
+                        ? `
+                            <p>
+                                <a
+                                    href="${escapeHtml(
+                                        documentData.document_url
+                                    )}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Open PDF
+                                </a>
+                            </p>
+                        `
+                        : ""
+                }
+
 
                 ${
                     CBRA_IS_ADMIN
@@ -4445,6 +4483,27 @@ async function getPersonCasesForDropdown(
 
 
 // ============================================================
+// Clean File Name
+// ============================================================
+
+function cleanMentalHealthFileName(
+    fileName
+) {
+
+    return fileName
+        .replace(
+            /[^a-zA-Z0-9._-]/g,
+            "-"
+        )
+        .replace(
+            /-+/g,
+            "-"
+        );
+
+}
+
+
+// ============================================================
 // Mental Health Document Form
 // ============================================================
 
@@ -4516,6 +4575,7 @@ async function showMentalHealthDocumentForm(
             }
         </h3>
 
+
         <label>
             <strong>Related Case</strong>
         </label>
@@ -4567,6 +4627,7 @@ async function showMentalHealthDocumentForm(
 
         <br><br>
 
+
         <label>
             <strong>Title</strong>
         </label>
@@ -4584,22 +4645,39 @@ async function showMentalHealthDocumentForm(
 
         <br><br>
 
+
         <label>
-            <strong>Document URL</strong>
+            <strong>Document PDF</strong>
         </label>
 
         <br>
 
         <input
-            type="url"
-            id="mental-health-url"
-            value="${escapeHtml(
-                documentData?.document_url || ""
-            )}"
-            required
+            type="file"
+            id="mental-health-file"
+            accept="application/pdf"
+            ${
+                documentData
+                    ? ""
+                    : "required"
+            }
         >
 
-        <br><br>
+        ${
+            documentData?.document_url
+                ? `
+                    <p>
+                        <small>
+                            A PDF is already attached.
+                            Choose a new PDF only if you want to replace it.
+                        </small>
+                    </p>
+                `
+                : ""
+        }
+
+        <br>
+
 
         <label>
             <strong>Document Type</strong>
@@ -4618,6 +4696,7 @@ async function showMentalHealthDocumentForm(
 
         <br><br>
 
+
         <label>
             <strong>Publication Date</strong>
         </label>
@@ -4634,6 +4713,7 @@ async function showMentalHealthDocumentForm(
 
         <br><br>
 
+
         <label>
             <strong>Description / Research Notes</strong>
         </label>
@@ -4648,6 +4728,7 @@ async function showMentalHealthDocumentForm(
         )}</textarea>
 
         <br><br>
+
 
         <label>
             <strong>Source</strong>
@@ -4685,6 +4766,7 @@ async function showMentalHealthDocumentForm(
 
         <br><br>
 
+
         <button type="submit">
             ${
                 documentData
@@ -4693,12 +4775,14 @@ async function showMentalHealthDocumentForm(
             }
         </button>
 
+
         <button
             type="button"
             id="cancel-mental-health"
         >
             Cancel
         </button>
+
 
         <p id="mental-health-message"></p>
 
@@ -4784,9 +4868,9 @@ async function saveMentalHealthDocument(
         );
 
 
-    const urlElement =
+    const fileElement =
         document.getElementById(
-            "mental-health-url"
+            "mental-health-file"
         );
 
 
@@ -4823,7 +4907,7 @@ async function saveMentalHealthDocument(
     if (
         !caseElement ||
         !titleElement ||
-        !urlElement ||
+        !fileElement ||
         !typeElement ||
         !dateElement ||
         !descriptionElement ||
@@ -4844,8 +4928,8 @@ async function saveMentalHealthDocument(
         titleElement.value.trim();
 
 
-    const documentUrl =
-        urlElement.value.trim();
+    const file =
+        fileElement.files?.[0] || null;
 
 
     const documentType =
@@ -4877,10 +4961,17 @@ async function saveMentalHealthDocument(
     }
 
 
-    if (!documentUrl) {
+    // --------------------------------------------------------
+    // Validate PDF
+    // --------------------------------------------------------
+
+    if (
+        file &&
+        file.type !== "application/pdf"
+    ) {
 
         message.textContent =
-            "Document URL is required.";
+            "The document must be a PDF.";
 
         message.style.color =
             "red";
@@ -4889,6 +4980,163 @@ async function saveMentalHealthDocument(
 
     }
 
+
+    if (
+        !documentId &&
+        !file
+    ) {
+
+        message.textContent =
+            "Please select a PDF.";
+
+        message.style.color =
+            "red";
+
+        return;
+
+    }
+
+
+    let documentUrl =
+        null;
+
+
+    // --------------------------------------------------------
+    // Keep existing PDF when editing without replacement
+    // --------------------------------------------------------
+
+    if (
+        documentId &&
+        !file
+    ) {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from(
+                    "mental_health_documents"
+                )
+                .select(
+                    "document_url"
+                )
+                .eq(
+                    "id",
+                    documentId
+                )
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Error loading existing PDF:",
+                error
+            );
+
+            message.textContent =
+                "Could not load the existing PDF.";
+
+            message.style.color =
+                "red";
+
+            return;
+
+        }
+
+
+        documentUrl =
+            data?.document_url || null;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Upload new PDF
+    // --------------------------------------------------------
+
+    if (file) {
+
+        message.textContent =
+            "Uploading PDF...";
+
+        message.style.color =
+            "";
+
+
+        const safeFileName =
+            cleanMentalHealthFileName(
+                file.name
+            );
+
+
+        const storagePath =
+            `${personId}/${Date.now()}-${safeFileName}`;
+
+
+        const {
+            error: uploadError
+        } =
+            await supabaseClient
+                .storage
+                .from(
+                    MENTAL_HEALTH_BUCKET
+                )
+                .upload(
+                    storagePath,
+                    file,
+                    {
+                        contentType:
+                            "application/pdf",
+
+                        upsert:
+                            false
+                    }
+                );
+
+
+        if (uploadError) {
+
+            console.error(
+                "Error uploading mental health PDF:",
+                uploadError
+            );
+
+            message.textContent =
+                "Could not upload PDF: " +
+                uploadError.message;
+
+            message.style.color =
+                "red";
+
+            return;
+
+        }
+
+
+        const {
+            data: publicUrlData
+        } =
+            supabaseClient
+                .storage
+                .from(
+                    MENTAL_HEALTH_BUCKET
+                )
+                .getPublicUrl(
+                    storagePath
+                );
+
+
+        documentUrl =
+            publicUrlData.publicUrl;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Database record
+    // --------------------------------------------------------
 
     const record = {
 
@@ -4962,6 +5210,7 @@ async function saveMentalHealthDocument(
             error
         );
 
+
         message.textContent =
             "Could not save document: " +
             error.message;
@@ -4969,13 +5218,14 @@ async function saveMentalHealthDocument(
         message.style.color =
             "red";
 
+
         return;
 
     }
 
 
     message.textContent =
-        "Document saved.";
+        "PDF uploaded and document saved.";
 
     message.style.color =
         "green";
@@ -5085,6 +5335,48 @@ async function deleteMentalHealthDocument(
     }
 
 
+    // --------------------------------------------------------
+    // Get document URL first so we can remove the PDF
+    // --------------------------------------------------------
+
+    const {
+        data: documentData,
+        error: loadError
+    } =
+        await supabaseClient
+            .from(
+                "mental_health_documents"
+            )
+            .select(
+                "document_url"
+            )
+            .eq(
+                "id",
+                documentId
+            )
+            .single();
+
+
+    if (loadError) {
+
+        console.error(
+            "Error loading document before deletion:",
+            loadError
+        );
+
+        alert(
+            "Could not load document."
+        );
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Delete database record
+    // --------------------------------------------------------
+
     const {
         error
     } =
@@ -5112,6 +5404,61 @@ async function deleteMentalHealthDocument(
         );
 
         return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Attempt to delete the PDF from Storage
+    // --------------------------------------------------------
+
+    const documentUrl =
+        documentData?.document_url || "";
+
+
+    const bucketMarker =
+        `/storage/v1/object/public/${MENTAL_HEALTH_BUCKET}/`;
+
+
+    if (
+        documentUrl.includes(
+            bucketMarker
+        )
+    ) {
+
+        const storagePath =
+            decodeURIComponent(
+                documentUrl.split(
+                    bucketMarker
+                )[1]
+            );
+
+
+        if (storagePath) {
+
+            const {
+                error: storageError
+            } =
+                await supabaseClient
+                    .storage
+                    .from(
+                        MENTAL_HEALTH_BUCKET
+                    )
+                    .remove([
+                        storagePath
+                    ]);
+
+
+            if (storageError) {
+
+                console.warn(
+                    "Document database record deleted, but Storage file could not be removed:",
+                    storageError
+                );
+
+            }
+
+        }
 
     }
 
