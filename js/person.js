@@ -1577,30 +1577,24 @@ async function loadPersonCases(personId) {
 // ============================================================
 // Load Person Source Options
 // ============================================================
-
-async function loadPersonSourceOptions(
-    personId
-) {
+async function loadPersonSourceOptions(personId) {
 
     const {
         data,
         error
     } =
         await supabaseClient
-            .from("person_sources")
+            .from("source_people")
             .select(`
-                id,
-                title
+                source_id,
+                source:sources (
+                    id,
+                    title
+                )
             `)
             .eq(
                 "person_id",
                 personId
-            )
-            .order(
-                "title",
-                {
-                    ascending: true
-                }
             );
 
 
@@ -1616,11 +1610,21 @@ async function loadPersonSourceOptions(
     }
 
 
-    return data || [];
+    return (data || [])
+        .map(
+            connection =>
+                connection.source
+        )
+        .filter(Boolean)
+        .sort(
+            (a, b) =>
+                String(a.title || "")
+                    .localeCompare(
+                        String(b.title || "")
+                    )
+        );
 
 }
-
-
 // ============================================================
 // Load Mugshot Source Options
 // ============================================================
