@@ -67,7 +67,6 @@ function escapeHTML(value) {
 
 }
 
-
 /* -----------------------------------------
    FORMAT DATE
    ----------------------------------------- */
@@ -78,8 +77,35 @@ function formatDate(dateValue) {
         return "—";
     }
 
-    const date =
-        new Date(dateValue);
+    // Handle date-only values without timezone conversion
+    const parts = String(dateValue).split("-");
+
+    if (parts.length === 3) {
+
+        const year = Number(parts[0]);
+        const month = Number(parts[1]);
+        const day = Number(parts[2]);
+
+        if (
+            Number.isInteger(year) &&
+            Number.isInteger(month) &&
+            Number.isInteger(day)
+        ) {
+            const date = new Date(year, month - 1, day);
+
+            return date.toLocaleDateString(
+                "en-US",
+                {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                }
+            );
+        }
+    }
+
+    // Fallback for unexpected date formats
+    const date = new Date(dateValue);
 
     if (Number.isNaN(date.getTime())) {
         return dateValue;
