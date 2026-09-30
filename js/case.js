@@ -67,6 +67,7 @@ function escapeHTML(value) {
 
 }
 
+
 /* -----------------------------------------
    FORMAT DATE
    ----------------------------------------- */
@@ -77,7 +78,6 @@ function formatDate(dateValue) {
         return "—";
     }
 
-    // Handle date-only values without timezone conversion
     const parts = String(dateValue).split("-");
 
     if (parts.length === 3) {
@@ -91,7 +91,12 @@ function formatDate(dateValue) {
             Number.isInteger(month) &&
             Number.isInteger(day)
         ) {
-            const date = new Date(year, month - 1, day);
+
+            const date = new Date(
+                year,
+                month - 1,
+                day
+            );
 
             return date.toLocaleDateString(
                 "en-US",
@@ -101,10 +106,11 @@ function formatDate(dateValue) {
                     day: "numeric"
                 }
             );
+
         }
+
     }
 
-    // Fallback for unexpected date formats
     const date = new Date(dateValue);
 
     if (Number.isNaN(date.getTime())) {
@@ -394,6 +400,7 @@ async function loadCase() {
 
 }
 
+
 /* -----------------------------------------
    LOAD PEOPLE
    ----------------------------------------- */
@@ -462,7 +469,6 @@ async function loadPeople() {
 
     const rolePriority = {
 
-        /* Offenders first */
         offender: 1,
         defendant: 1,
         suspect: 1,
@@ -470,13 +476,10 @@ async function loadPeople() {
         accused: 1,
         "person of interest": 1,
 
-        /* Victims second */
         victim: 2,
 
-        /* Witnesses third */
         witness: 3,
 
-        /* Everyone else last */
         other: 4
 
     };
@@ -524,20 +527,41 @@ async function loadPeople() {
                     return "";
                 }
 
-                return `
-                    <div class="person-card">
+                const role =
+                    String(
+                        item.role || ""
+                    )
+                        .trim()
+                        .toLowerCase();
 
-                        <h3>
+                const displayName =
+                    escapeHTML(
+                        person.display_name ||
+                        "Unnamed Person"
+                    );
+
+                /*
+                 * Victims do NOT link to person profiles.
+                 * All other roles remain clickable.
+                 */
+                const nameHTML =
+                    role === "victim"
+                        ? displayName
+                        : `
                             <a
                                 href="person.html?id=${encodeURIComponent(
                                     person.id
                                 )}"
                             >
-                                ${escapeHTML(
-                                    person.display_name ||
-                                    "Unnamed Person"
-                                )}
+                                ${displayName}
                             </a>
+                        `;
+
+                return `
+                    <div class="person-card">
+
+                        <h3>
+                            ${nameHTML}
                         </h3>
 
                         <p>
@@ -588,6 +612,7 @@ async function loadPeople() {
         `<div class="empty-state">No people are linked to this case.</div>`;
 
 }
+
 
 /* -----------------------------------------
    LOAD TAGS
@@ -1404,6 +1429,7 @@ async function loadDocuments() {
 
 }
 
+
 /* -----------------------------------------
    LOAD CASE SOURCES
    ----------------------------------------- */
@@ -1416,11 +1442,6 @@ async function loadCaseSources() {
         );
 
     if (!container) return;
-
-
-    /* -----------------------------------------
-       LOAD SOURCE/CASE RELATIONSHIPS
-       ----------------------------------------- */
 
     const {
         data: sourceCases,
@@ -1435,7 +1456,6 @@ async function loadCaseSources() {
                 "case_id",
                 caseId
             );
-
 
     if (sourceCaseError) {
 
@@ -1453,20 +1473,10 @@ async function loadCaseSources() {
 
     }
 
-
-    /* -----------------------------------------
-       NO RELATIONSHIPS
-       ----------------------------------------- */
-
     if (
         !sourceCases ||
         sourceCases.length === 0
     ) {
-
-        console.warn(
-            "CBRA: No source_cases rows found for case:",
-            caseId
-        );
 
         showEmpty(
             "case-sources",
@@ -1476,11 +1486,6 @@ async function loadCaseSources() {
         return;
 
     }
-
-
-    /* -----------------------------------------
-       GET SOURCE IDS
-       ----------------------------------------- */
 
     const sourceIds =
         sourceCases
@@ -1494,13 +1499,7 @@ async function loadCaseSources() {
                     sourceId !== undefined
             );
 
-
     if (sourceIds.length === 0) {
-
-        console.warn(
-            "CBRA: source_cases rows exist, but no source IDs were found for case:",
-            caseId
-        );
 
         showEmpty(
             "case-sources",
@@ -1510,18 +1509,6 @@ async function loadCaseSources() {
         return;
 
     }
-
-
-    console.log(
-        "CBRA: Source IDs for case",
-        caseId,
-        sourceIds
-    );
-
-
-    /* -----------------------------------------
-       LOAD SOURCES
-       ----------------------------------------- */
 
     const {
         data: sources,
@@ -1541,7 +1528,6 @@ async function loadCaseSources() {
                 sourceIds
             );
 
-
     if (sourceError) {
 
         console.error(
@@ -1558,23 +1544,10 @@ async function loadCaseSources() {
 
     }
 
-
-    /* -----------------------------------------
-       SOURCE RECORDS NOT FOUND
-       ----------------------------------------- */
-
     if (
         !sources ||
         sources.length === 0
     ) {
-
-        console.warn(
-            "CBRA: source_cases found source IDs, but no matching sources were returned.",
-            {
-                caseId: caseId,
-                sourceIds: sourceIds
-            }
-        );
 
         showEmpty(
             "case-sources",
@@ -1584,11 +1557,6 @@ async function loadCaseSources() {
         return;
 
     }
-
-
-    /* -----------------------------------------
-       SORT SOURCES
-       ----------------------------------------- */
 
     sources.sort(
         (a, b) => {
@@ -1608,11 +1576,6 @@ async function loadCaseSources() {
 
         }
     );
-
-
-    /* -----------------------------------------
-       DISPLAY SOURCES
-       ----------------------------------------- */
 
     container.innerHTML =
         sources
@@ -1665,6 +1628,7 @@ async function loadCaseSources() {
             .join("");
 
 }
+
 
 /* -----------------------------------------
    LOAD LINKS
