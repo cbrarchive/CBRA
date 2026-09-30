@@ -1,895 +1,558 @@
 /* =========================================
-   CBRA — CRIME SCENE PHOTOS
+   CBRA — UNIFIED CASE MEDIA MANAGEMENT
+   =========================================
+
+   Uses the EXISTING database systems:
+
+   Images:
+   - case_crime_scene_photos
+   - crime-scene-photos Storage bucket
+
+   PDFs / Videos / Links:
+   - case_media
+
+   This intentionally does NOT create a
+   third media database system.
    ========================================= */
 
 
 /* -----------------------------------------
-   LOAD CRIME SCENE PHOTOS
+   SUPABASE
    ----------------------------------------- */
 
-async function loadCrimeScenePhotos(caseId) {
+const caseMediaSupabase =
+    window.supabaseClient;
 
-    const list =
+
+/* -----------------------------------------
+   EDIT STATE
+   ----------------------------------------- */
+
+let caseMediaEditingId = null;
+let caseMediaEditingTable = null;
+
+
+/* -----------------------------------------
+   GET CURRENT CASE
+   ----------------------------------------- */
+
+function getCaseMediaCaseId() {
+
+    const selector =
         document.getElementById(
-            "crime-scene-photo-list"
+            "case-selector"
         );
 
-    if (!list) {
-        return;
+    if (
+        selector &&
+        selector.value
+    ) {
+
+        return selector.value;
+
     }
 
-    if (!caseId) {
 
-        list.innerHTML =
-            '<p class="empty-message">Select a case to view its photographs.</p>';
+    if (
+        typeof window.getCurrentCaseId ===
+        "function"
+    ) {
 
-        return;
+        return window.getCurrentCaseId();
+
     }
 
-    list.innerHTML =
-        "<p>Loading crime scene photos...</p>";
 
-    try {
-
-        const { data, error } =
-            await supabaseClient
-                .from("case_crime_scene_photos")
-                .select(`
-                    *,
-                    sources (
-                        id,
-                        title
-                    )
-                `)
-                .eq(
-                    "case_id",
-                    caseId
-                )
-                .order(
-                    "created_at",
-                    {
-                        ascending: true
-                    }
-                );
-
-        if (error) {
-            throw error;
-        }
-
-        list.innerHTML = "";
-
-        if (
-            !data ||
-            data.length === 0
-        ) {
-
-            list.innerHTML =
-                '<p class="empty-message">No crime scene photos added yet.</p>';
-
-            return;
-        }
-
-
-        data.forEach(
-            function (photo) {
-
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-                card.className =
-                    "manage-record";
-
-
-                /* TITLE */
-
-                const title =
-                    document.createElement(
-                        "strong"
-                    );
-
-                title.textContent =
-                    photo.title ||
-                    "Untitled photo";
-
-                card.appendChild(
-                    title
-                );
-
-
-                /* IMAGE */
-
-                if (photo.image_url) {
-
-                    const image =
-                        document.createElement(
-                            "img"
-                        );
-
-                    image.src =
-                        photo.image_url;
-
-                    image.alt =
-                        photo.title ||
-                        "Crime scene photograph";
-
-                    image.style.maxWidth =
-                        "300px";
-
-                    image.style.display =
-                        "block";
-
-                    image.style.margin =
-                        "12px 0";
-
-                    card.appendChild(
-                        image
-                    );
-                }
-
-
-                /* DATE */
-
-                if (photo.date_taken) {
-
-                    const date =
-                        document.createElement(
-                            "p"
-                        );
-
-                    date.textContent =
-                        "Date taken: " +
-                        photo.date_taken;
-
-                    card.appendChild(
-                        date
-                    );
-                }
-
-
-                /* DESCRIPTION */
-
-                if (photo.description) {
-
-                    const description =
-                        document.createElement(
-                            "p"
-                        );
-
-                    description.textContent =
-                        photo.description;
-
-                    card.appendChild(
-                        description
-                    );
-                }
-
-
-                /* SOURCE */
-
-                if (
-                    photo.sources &&
-                    photo.sources.title
-                ) {
-
-                    const source =
-                        document.createElement(
-                            "p"
-                        );
-
-                    source.textContent =
-                        "Source: " +
-                        photo.sources.title;
-
-                    card.appendChild(
-                        source
-                    );
-                }
-
-
-                /* OPEN FULL IMAGE */
-
-                if (photo.image_url) {
-
-                    const link =
-                        document.createElement(
-                            "a"
-                        );
-
-                    link.href =
-                        photo.image_url;
-
-                    link.target =
-                        "_blank";
-
-                    link.rel =
-                        "noopener noreferrer";
-
-                    link.textContent =
-                        "Open Full Image";
-
-                    card.appendChild(
-                        link
-                    );
-                }
-
-
-                /* REMOVE */
-
-                const remove =
-                    document.createElement(
-                        "button"
-                    );
-
-                remove.type =
-                    "button";
-
-                remove.textContent =
-                    "Remove";
-
-                remove.onclick =
-                    function () {
-
-                        removeCrimeScenePhoto(
-                            photo.id
-                        );
-
-                    };
-
-                card.appendChild(
-                    remove
-                );
-
-
-                list.appendChild(
-                    card
-                );
-
-            }
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Crime scene photo loading error:",
-            error
-        );
-
-        list.innerHTML =
-            "<p>Unable to load crime scene photos.</p>";
-
-    }
+    return "";
 
 }
 
 
 /* -----------------------------------------
-   ADD CRIME SCENE PHOTO
+   MESSAGE
    ----------------------------------------- */
 
-async function addCrimeScenePhoto(event) {
+function setCaseMediaMessage(
+    message,
+    isError = false
+) {
 
-    event.preventDefault();
-
-
-    /* -----------------------------------------
-       GET CURRENT CASE
-       ----------------------------------------- */
-
-    const caseId =
-        window.getCurrentCaseId();
-
-
-    /* -----------------------------------------
-       GET FORM MESSAGE
-       ----------------------------------------- */
-
-    const message =
+    const element =
         document.getElementById(
-            "crime-scene-photo-message"
+            "media-message"
         );
 
-
-    if (!caseId) {
-
-        if (message) {
-
-            message.textContent =
-                "Please select a case first.";
-
-        }
-
+    if (!element) {
         return;
     }
 
 
-    /* -----------------------------------------
-       GET TITLE
-       ----------------------------------------- */
-
-    const titleElement =
-        document.getElementById(
-            "crime-scene-photo-title"
-        );
+    element.textContent =
+        message || "";
 
 
-    if (!titleElement) {
-
-        console.error(
-            "Element not found: crime-scene-photo-title"
-        );
-
-        if (message) {
-
-            message.textContent =
-                "Crime scene photo title field could not be found.";
-
-        }
-
-        return;
-    }
-
-
-    const title =
-        titleElement.value.trim();
-
-
-    /* -----------------------------------------
-       GET DATE
-       ----------------------------------------- */
-
-    const dateElement =
-        document.getElementById(
-            "crime-scene-photo-date"
-        );
-
-
-    const dateTaken =
-        dateElement
-            ? dateElement.value || null
-            : null;
-
-
-    /* -----------------------------------------
-       GET IMAGE FILE
-       ----------------------------------------- */
-
-    const fileElement =
-        document.getElementById(
-            "crime-scene-photo-file"
-        );
-
-
-    if (!fileElement) {
-
-        console.error(
-            "Element not found: crime-scene-photo-file"
-        );
-
-        if (message) {
-
-            message.textContent =
-                "Crime scene photo file field could not be found.";
-
-        }
-
-        return;
-    }
-
-
-    const file =
-        fileElement.files &&
-        fileElement.files[0];
-
-
-    /* -----------------------------------------
-       GET DESCRIPTION
-       ----------------------------------------- */
-
-    const descriptionElement =
-        document.getElementById(
-            "crime-scene-photo-description"
-        );
-
-
-    const description =
-        descriptionElement
-            ? descriptionElement.value.trim() || null
-            : null;
-
-
-    /* -----------------------------------------
-       GET SOURCE
-       ----------------------------------------- */
-
-    const sourceElement =
-        document.getElementById(
-            "crime-scene-photo-source"
-        );
-
-
-    const sourceValue =
-        sourceElement
-            ? sourceElement.value
+    element.style.color =
+        isError
+            ? "red"
             : "";
 
-
-    const sourceId =
-        sourceValue
-            ? Number(sourceValue)
-            : null;
+}
 
 
-    /* -----------------------------------------
-       VALIDATION
-       ----------------------------------------- */
+/* -----------------------------------------
+   BUILD UNIFIED FORM
+   ----------------------------------------- */
 
-    if (!title) {
+function buildCaseMediaForm() {
 
-        if (message) {
+    const container =
+        document.getElementById(
+            "general-media-management"
+        );
 
-            message.textContent =
-                "Please enter a title.";
 
-        }
+    const fallback =
+        document.getElementById(
+            "crime-scene-photo-management"
+        );
 
+
+    const target =
+        container ||
+        fallback;
+
+
+    if (!target) {
         return;
     }
 
 
-    if (!file) {
-
-        if (message) {
-
-            message.textContent =
-                "Please select an image.";
-
-        }
+    if (
+        document.getElementById(
+            "case-media-form"
+        )
+    ) {
 
         return;
-    }
-
-
-    if (message) {
-
-        message.textContent =
-            "Uploading photograph...";
 
     }
 
 
-    /* -----------------------------------------
-       CREATE UNIQUE STORAGE FILENAME
-       ----------------------------------------- */
+    target.innerHTML = `
 
-    const fileExtension =
-        file.name.includes(".")
-            ? file.name
-                .split(".")
-                .pop()
-                .toLowerCase()
-            : "jpg";
+        <div class="management-card">
 
+            <div class="management-card-header">
 
-    const fileName =
-        Date.now() +
-        "-" +
-        Math.random()
-            .toString(36)
-            .substring(2, 10) +
-        "." +
-        fileExtension;
+                <h4>
+                    Case Media
+                </h4>
+
+                <p>
+                    Add photographs, PDFs, videos,
+                    or external links associated
+                    with this case.
+                </p>
+
+            </div>
 
 
-    const filePath =
-        caseId +
-        "/" +
-        fileName;
+            <form id="case-media-form">
+
+                <div class="form-grid">
 
 
-    /* -----------------------------------------
-       UPLOAD IMAGE
-       ----------------------------------------- */
+                    <!-- TITLE -->
 
-    try {
+                    <div class="form-group">
 
-        const { error: uploadError } =
-            await supabaseClient
-                .storage
-                .from(
-                    "crime-scene-photos"
-                )
-                .upload(
-                    filePath,
-                    file,
-                    {
-                        cacheControl: "3600",
-                        upsert: false
-                    }
-                );
+                        <label for="case-media-title">
+                            Title
+                        </label>
+
+                        <input
+                            type="text"
+                            id="case-media-title"
+                            placeholder="Media title"
+                            required
+                        >
+
+                    </div>
 
 
-        if (uploadError) {
+                    <!-- MEDIA TYPE -->
 
-            console.error(
-                "Crime scene photo upload error:",
-                uploadError
-            );
+                    <div class="form-group">
 
-            if (message) {
+                        <label for="case-media-type">
+                            Media Type
+                        </label>
 
-                message.textContent =
-                    "Unable to upload photograph.";
+                        <select
+                            id="case-media-type"
+                            required
+                        >
 
-            }
+                            <option value="">
+                                -- Select Type --
+                            </option>
 
-            return;
-        }
+                            <option value="Image">
+                                Image
+                            </option>
 
+                            <option value="PDF">
+                                PDF
+                            </option>
 
-        /* -----------------------------------------
-           GET PUBLIC URL
-           ----------------------------------------- */
+                            <option value="Video">
+                                Video
+                            </option>
 
-        const { data: publicData } =
-            supabaseClient
-                .storage
-                .from(
-                    "crime-scene-photos"
-                )
-                .getPublicUrl(
-                    filePath
-                );
+                            <option value="Link">
+                                Link
+                            </option>
 
+                        </select>
 
-        const imageUrl =
-            publicData &&
-            publicData.publicUrl;
-
-
-        if (!imageUrl) {
-
-            console.error(
-                "Unable to create public image URL."
-            );
-
-            if (message) {
-
-                message.textContent =
-                    "The image uploaded, but its public URL could not be created.";
-
-            }
-
-            return;
-        }
+                    </div>
 
 
-        /* -----------------------------------------
-           SAVE DATABASE RECORD
-           ----------------------------------------- */
+                    <!-- DATE -->
 
-        const { error: databaseError } =
-            await supabaseClient
-                .from(
-                    "case_crime_scene_photos"
-                )
-                .insert({
+                    <div class="form-group">
 
-                    case_id:
-                        caseId,
+                        <label for="case-media-date">
+                            Date
+                        </label>
 
-                    title:
-                        title,
+                        <input
+                            type="date"
+                            id="case-media-date"
+                        >
 
-                    image_url:
-                        imageUrl,
-
-                    date_taken:
-                        dateTaken,
-
-                    description:
-                        description,
-
-                    source_id:
-                        sourceId
-
-                });
+                    </div>
 
 
-        if (databaseError) {
+                    <!-- IMAGE / PDF FILE -->
 
-            console.error(
-                "Crime scene photo database error:",
-                databaseError
-            );
+                    <div
+                        class="form-group form-group-full"
+                        id="case-media-file-group"
+                        style="display:none;"
+                    >
 
-            if (message) {
+                        <label for="case-media-file">
+                            File
+                        </label>
 
-                message.textContent =
-                    "The image uploaded, but the database record could not be saved.";
+                        <input
+                            type="file"
+                            id="case-media-file"
+                        >
 
-            }
+                        <small>
+                            Select an image or PDF file.
+                        </small>
 
-            return;
-        }
-
-
-        /* -----------------------------------------
-           CLEAR FORM
-           ----------------------------------------- */
-
-        const form =
-            document.getElementById(
-                "crime-scene-photo-form"
-            );
+                    </div>
 
 
-        if (form) {
+                    <!-- VIDEO / LINK URL -->
 
-            form.reset();
+                    <div
+                        class="form-group form-group-full"
+                        id="case-media-url-group"
+                        style="display:none;"
+                    >
 
-        }
+                        <label for="case-media-url">
+                            URL
+                        </label>
+
+                        <input
+                            type="url"
+                            id="case-media-url"
+                            placeholder="https://..."
+                        >
+
+                    </div>
 
 
-        /* -----------------------------------------
-           SUCCESS
-           ----------------------------------------- */
+                    <!-- DESCRIPTION -->
 
-        if (message) {
+                    <div
+                        class="form-group form-group-full"
+                    >
 
-            message.textContent =
-                "Crime scene photo added successfully.";
+                        <label for="case-media-description">
+                            Description
+                        </label>
 
-        }
+                        <textarea
+                            id="case-media-description"
+                            rows="4"
+                            placeholder="Briefly describe the media..."
+                        ></textarea>
+
+                    </div>
 
 
-        /* -----------------------------------------
-           REFRESH LIST
-           ----------------------------------------- */
+                    <!-- SOURCE -->
 
-        await loadCrimeScenePhotos(
-            caseId
+                    <div
+                        class="form-group form-group-full"
+                    >
+
+                        <label for="case-media-source">
+                            Source
+                        </label>
+
+                        <select
+                            id="case-media-source"
+                        >
+
+                            <option value="">
+                                -- No Source --
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        id="case-media-submit"
+                        class="primary-button"
+                    >
+                        Add Media
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="case-media-cancel"
+                        class="secondary-button"
+                        style="display:none;"
+                    >
+                        Cancel Edit
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="media-message"
+                    class="manage-message"
+                ></div>
+
+            </form>
+
+        </div>
+
+
+        <div
+            id="case-media-list"
+            class="manage-record-list"
+        >
+
+            <p class="empty-message">
+                Select a case to view media.
+            </p>
+
+        </div>
+
+    `;
+
+
+    const form =
+        document.getElementById(
+            "case-media-form"
         );
 
-    } catch (error) {
 
-        console.error(
-            "Crime scene photo error:",
-            error
+    const typeSelector =
+        document.getElementById(
+            "case-media-type"
         );
 
-        if (message) {
 
-            message.textContent =
-                error.message ||
-                "Something went wrong while adding the photograph.";
+    const cancelButton =
+        document.getElementById(
+            "case-media-cancel"
+        );
 
-        }
+
+    if (typeSelector) {
+
+        typeSelector.addEventListener(
+            "change",
+            updateCaseMediaInput
+        );
 
     }
+
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            saveCaseMedia
+        );
+
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            cancelCaseMediaEdit
+        );
+
+    }
+
+
+    updateCaseMediaInput();
 
 }
 
 
 /* -----------------------------------------
-   REMOVE CRIME SCENE PHOTO
+   UPDATE INPUT BASED ON MEDIA TYPE
    ----------------------------------------- */
 
-async function removeCrimeScenePhoto(id) {
+function updateCaseMediaInput() {
 
-    if (
-        !confirm(
-            "Remove this crime scene photo?"
-        )
-    ) {
-        return;
+    const type =
+        document.getElementById(
+            "case-media-type"
+        )?.value;
+
+
+    const fileGroup =
+        document.getElementById(
+            "case-media-file-group"
+        );
+
+
+    const urlGroup =
+        document.getElementById(
+            "case-media-url-group"
+        );
+
+
+    const fileInput =
+        document.getElementById(
+            "case-media-file"
+        );
+
+
+    const urlInput =
+        document.getElementById(
+            "case-media-url"
+        );
+
+
+    if (fileGroup) {
+
+        fileGroup.style.display =
+            (
+                type === "Image" ||
+                type === "PDF"
+            )
+                ? "block"
+                : "none";
+
     }
 
 
-    /* -----------------------------------------
-       GET PHOTO INFORMATION
-       ----------------------------------------- */
+    if (urlGroup) {
 
-    const {
-        data: photo,
-        error: fetchError
-    } =
-        await supabaseClient
-            .from(
-                "case_crime_scene_photos"
+        urlGroup.style.display =
+            (
+                type === "Video" ||
+                type === "Link"
             )
-            .select(
-                "image_url"
-            )
-            .eq(
-                "id",
-                id
-            )
-            .single();
+                ? "block"
+                : "none";
 
-
-    if (
-        fetchError ||
-        !photo
-    ) {
-
-        console.error(
-            "Unable to find crime scene photo:",
-            fetchError
-        );
-
-        alert(
-            "Unable to find the photograph."
-        );
-
-        return;
     }
 
 
-    /* -----------------------------------------
-       GET CURRENT CASE
-       ----------------------------------------- */
+    if (fileInput) {
 
-    const caseId =
-        window.getCurrentCaseId();
+        if (type === "Image") {
 
+            fileInput.accept =
+                "image/*";
 
-    /* -----------------------------------------
-       DELETE DATABASE RECORD
-       ----------------------------------------- */
+        } else if (type === "PDF") {
 
-    const {
-        error: databaseError
-    } =
-        await supabaseClient
-            .from(
-                "case_crime_scene_photos"
-            )
-            .delete()
-            .eq(
-                "id",
-                id
-            );
+            fileInput.accept =
+                "application/pdf";
 
+        } else {
 
-    if (databaseError) {
+            fileInput.value =
+                "";
 
-        console.error(
-            "Crime scene photo database deletion error:",
-            databaseError
-        );
-
-        alert(
-            "Unable to remove the photograph."
-        );
-
-        return;
-    }
-
-
-    /* -----------------------------------------
-       DELETE IMAGE FROM STORAGE
-       ----------------------------------------- */
-
-    if (photo.image_url) {
-
-        try {
-
-            const bucketName =
-                "crime-scene-photos";
-
-
-            const marker =
-                "/" +
-                bucketName +
-                "/";
-
-
-            const markerIndex =
-                photo.image_url.indexOf(
-                    marker
-                );
-
-
-            if (
-                markerIndex !== -1
-            ) {
-
-                const storagePath =
-                    decodeURIComponent(
-                        photo.image_url.substring(
-                            markerIndex +
-                            marker.length
-                        )
-                    );
-
-
-                const {
-                    error: storageError
-                } =
-                    await supabaseClient
-                        .storage
-                        .from(
-                            bucketName
-                        )
-                        .remove([
-                            storagePath
-                        ]);
-
-
-                if (storageError) {
-
-                    console.error(
-                        "Crime scene photo Storage deletion error:",
-                        storageError
-                    );
-
-                    alert(
-                        "The database record was removed, but the image file could not be deleted from Storage."
-                    );
-
-                    await loadCrimeScenePhotos(
-                        caseId
-                    );
-
-                    return;
-                }
-
-            }
-
-        } catch (storageException) {
-
-            console.error(
-                "Crime scene photo Storage deletion exception:",
-                storageException
-            );
-
-            alert(
-                "The database record was removed, but the image file could not be deleted from Storage."
-            );
-
-            await loadCrimeScenePhotos(
-                caseId
-            );
-
-            return;
         }
 
     }
 
 
-    /* -----------------------------------------
-       REFRESH PHOTO LIST
-       ----------------------------------------- */
+    if (urlInput) {
 
-    await loadCrimeScenePhotos(
-        caseId
-    );
+        if (
+            type !== "Video" &&
+            type !== "Link"
+        ) {
+
+            urlInput.value =
+                "";
+
+        }
+
+    }
 
 }
+
 
 /* -----------------------------------------
    LOAD SOURCES
    ----------------------------------------- */
 
-async function loadCrimeScenePhotoSources(caseId) {
+async function loadCaseMediaSources(
+    caseId,
+    selectedSourceId = ""
+) {
 
     const selector =
         document.getElementById(
-            "crime-scene-photo-source"
+            "case-media-source"
         );
+
 
     if (!selector) {
         return;
     }
 
+
     selector.innerHTML =
-        '<option value="">-- Select Source --</option>';
+        '<option value="">-- No Source --</option>';
+
 
     if (!caseId) {
         return;
     }
+
 
     try {
 
@@ -897,7 +560,7 @@ async function loadCrimeScenePhotoSources(caseId) {
             data,
             error
         } =
-            await supabaseClient
+            await caseMediaSupabase
                 .from("sources")
                 .select(`
                     id,
@@ -914,15 +577,13 @@ async function loadCrimeScenePhotoSources(caseId) {
                     }
                 );
 
+
         if (error) {
             throw error;
         }
 
-        if (!data) {
-            return;
-        }
 
-        data.forEach(
+        (data || []).forEach(
             function(source) {
 
                 const option =
@@ -930,14 +591,17 @@ async function loadCrimeScenePhotoSources(caseId) {
                         "option"
                     );
 
+
                 option.value =
                     String(
                         source.id
                     );
 
+
                 option.textContent =
                     source.title ||
                     "Untitled Source";
+
 
                 selector.appendChild(
                     option
@@ -946,10 +610,24 @@ async function loadCrimeScenePhotoSources(caseId) {
             }
         );
 
+
+        if (
+            selectedSourceId !== null &&
+            selectedSourceId !== undefined &&
+            String(selectedSourceId) !== ""
+        ) {
+
+            selector.value =
+                String(
+                    selectedSourceId
+                );
+
+        }
+
     } catch (error) {
 
         console.error(
-            "Crime scene source loading error:",
+            "Case media source loading error:",
             error
         );
 
@@ -957,45 +635,2393 @@ async function loadCrimeScenePhotoSources(caseId) {
 
 }
 
+
 /* -----------------------------------------
-   FORM SUBMISSION
+   LOAD UNIFIED MEDIA
+   ----------------------------------------- */
+
+async function loadCaseMedia(
+    caseId
+) {
+
+    buildCaseMediaForm();
+
+
+    const list =
+        document.getElementById(
+            "case-media-list"
+        );
+
+
+    if (!list) {
+        return;
+    }
+
+
+    if (!caseId) {
+
+        list.innerHTML =
+            '<p class="empty-message">Select a case to view media.</p>';
+
+        return;
+
+    }
+
+
+    list.innerHTML =
+        "<p>Loading media...</p>";
+
+
+    try {
+
+        /* -----------------------------------------
+           LOAD CRIME SCENE PHOTOS
+           ----------------------------------------- */
+
+        const {
+            data: photos,
+            error: photoError
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_crime_scene_photos"
+                )
+                .select(
+                    "*"
+                )
+                .eq(
+                    "case_id",
+                    caseId
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (photoError) {
+            throw photoError;
+        }
+
+
+        /* -----------------------------------------
+           LOAD GENERAL CASE MEDIA
+           ----------------------------------------- */
+
+        const {
+            data: generalMedia,
+            error: generalError
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_media"
+                )
+                .select(
+                    "*"
+                )
+                .eq(
+                    "case_id",
+                    caseId
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (generalError) {
+            throw generalError;
+        }
+
+
+        /* -----------------------------------------
+           LOAD SOURCE NAMES
+           ----------------------------------------- */
+
+        const allSourceIds =
+            Array.from(
+                new Set(
+                    [
+                        ...(photos || []),
+                        ...(generalMedia || [])
+                    ]
+                        .map(
+                            function(item) {
+
+                                return item.source_id;
+
+                            }
+                        )
+                        .filter(
+                            function(id) {
+
+                                return (
+                                    id !== null &&
+                                    id !== undefined &&
+                                    id !== ""
+                                );
+
+                            }
+                        )
+                        .map(
+                            function(id) {
+
+                                return String(
+                                    id
+                                );
+
+                            }
+                        )
+                )
+            );
+
+
+        const sourceMap =
+            new Map();
+
+
+        if (
+            allSourceIds.length > 0
+        ) {
+
+            const {
+                data: sources,
+                error: sourceError
+            } =
+                await caseMediaSupabase
+                    .from(
+                        "sources"
+                    )
+                    .select(
+                        "id, title"
+                    )
+                    .in(
+                        "id",
+                        allSourceIds
+                    );
+
+
+            if (sourceError) {
+
+                console.error(
+                    "Case media source lookup error:",
+                    sourceError
+                );
+
+            }
+
+
+            (sources || []).forEach(
+                function(source) {
+
+                    sourceMap.set(
+                        String(
+                            source.id
+                        ),
+                        source.title ||
+                        "Untitled Source"
+                    );
+
+                }
+            );
+
+        }
+
+
+        list.innerHTML =
+            "";
+
+
+        const total =
+            (
+                photos?.length || 0
+            ) +
+            (
+                generalMedia?.length || 0
+            );
+
+
+        if (total === 0) {
+
+            list.innerHTML =
+                '<p class="empty-message">No case media added yet.</p>';
+
+            return;
+
+        }
+
+
+        /* -----------------------------------------
+           DISPLAY IMAGES
+           ----------------------------------------- */
+
+        (photos || []).forEach(
+            function(photo) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "manage-record";
+
+
+                const title =
+                    document.createElement(
+                        "strong"
+                    );
+
+
+                title.textContent =
+                    photo.title ||
+                    "Untitled Image";
+
+
+                card.appendChild(
+                    title
+                );
+
+
+                addCaseMediaText(
+                    card,
+                    "Type: Image"
+                );
+
+
+                if (
+                    photo.date_taken
+                ) {
+
+                    addCaseMediaText(
+                        card,
+                        "Date: " +
+                        photo.date_taken
+                    );
+
+                }
+
+
+                if (
+                    photo.description
+                ) {
+
+                    addCaseMediaText(
+                        card,
+                        photo.description
+                    );
+
+                }
+
+
+                if (
+                    photo.source_id
+                ) {
+
+                    addCaseMediaText(
+                        card,
+                        "Source: " +
+                        (
+                            sourceMap.get(
+                                String(
+                                    photo.source_id
+                                )
+                            ) ||
+                            "Source unavailable"
+                        )
+                    );
+
+                }
+
+
+                if (
+                    photo.image_url
+                ) {
+
+                    const image =
+                        document.createElement(
+                            "img"
+                        );
+
+
+                    image.src =
+                        photo.image_url;
+
+
+                    image.alt =
+                        photo.title ||
+                        "Case image";
+
+
+                    image.style.maxWidth =
+                        "300px";
+
+
+                    image.style.display =
+                        "block";
+
+
+                    image.style.margin =
+                        "12px 0";
+
+
+                    card.appendChild(
+                        image
+                    );
+
+
+                    addCaseMediaLink(
+                        card,
+                        photo.image_url,
+                        "Open Full Image"
+                    );
+
+                }
+
+
+                const actions =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                actions.className =
+                    "manage-record-actions";
+
+
+                const removeButton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                removeButton.type =
+                    "button";
+
+
+                removeButton.textContent =
+                    "Remove";
+
+
+                removeButton.addEventListener(
+                    "click",
+                    function() {
+
+                        removeCaseCrimeScenePhoto(
+                            photo.id
+                        );
+
+                    }
+                );
+
+
+                actions.appendChild(
+                    removeButton
+                );
+
+
+                card.appendChild(
+                    actions
+                );
+
+
+                list.appendChild(
+                    card
+                );
+
+            }
+        );
+
+
+        /* -----------------------------------------
+           DISPLAY PDF / VIDEO / LINK
+           ----------------------------------------- */
+
+        (generalMedia || []).forEach(
+            function(media) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "manage-record";
+
+
+                const title =
+                    document.createElement(
+                        "strong"
+                    );
+
+
+                title.textContent =
+                    media.title ||
+                    "Untitled Media";
+
+
+                card.appendChild(
+                    title
+                );
+
+
+                if (
+                    media.media_type
+                ) {
+
+                    addCaseMediaText(
+                        card,
+                        "Type: " +
+                        media.media_type
+                    );
+
+                }
+
+
+                if (
+                    media.media_date
+                ) {
+
+                    addCaseMediaText(
+                        card,
+                        "Date: " +
+                        media.media_date
+                    );
+
+                }
+
+
+                if (
+                    media.description
+                ) {
+
+                    addCaseMediaText(
+                        card,
+                        media.description
+                    );
+
+                }
+
+
+                if (
+                    media.source_id
+                ) {
+
+                    addCaseMediaText(
+                        card,
+                        "Source: " +
+                        (
+                            sourceMap.get(
+                                String(
+                                    media.source_id
+                                )
+                            ) ||
+                            "Source unavailable"
+                        )
+                    );
+
+                }
+
+
+                if (
+                    media.media_url
+                ) {
+
+                    addCaseMediaLink(
+                        card,
+                        media.media_url,
+                        media.media_type === "PDF"
+                            ? "Open PDF"
+                            : "Open Media"
+                    );
+
+                }
+
+
+                const actions =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                actions.className =
+                    "manage-record-actions";
+
+
+                const editButton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                editButton.type =
+                    "button";
+
+
+                editButton.textContent =
+                    "Edit";
+
+
+                editButton.addEventListener(
+                    "click",
+                    function() {
+
+                        editCaseGeneralMedia(
+                            media.id
+                        );
+
+                    }
+                );
+
+
+                actions.appendChild(
+                    editButton
+                );
+
+
+                const removeButton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                removeButton.type =
+                    "button";
+
+
+                removeButton.textContent =
+                    "Remove";
+
+
+                removeButton.addEventListener(
+                    "click",
+                    function() {
+
+                        removeCaseGeneralMedia(
+                            media.id
+                        );
+
+                    }
+                );
+
+
+                actions.appendChild(
+                    removeButton
+                );
+
+
+                card.appendChild(
+                    actions
+                );
+
+
+                list.appendChild(
+                    card
+                );
+
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Case media loading error:",
+            error
+        );
+
+
+        list.innerHTML =
+            '<p class="form-message">Unable to load case media.</p>';
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   HELPERS
+   ----------------------------------------- */
+
+function addCaseMediaText(
+    card,
+    text
+) {
+
+    const element =
+        document.createElement(
+            "p"
+        );
+
+
+    element.textContent =
+        text;
+
+
+    card.appendChild(
+        element
+    );
+
+}
+
+
+function addCaseMediaLink(
+    card,
+    url,
+    text
+) {
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.target =
+        "_blank";
+
+
+    link.rel =
+        "noopener noreferrer";
+
+
+    link.textContent =
+        text;
+
+
+    card.appendChild(
+        link
+    );
+
+}
+
+
+/* -----------------------------------------
+   SAVE CASE MEDIA
+   ----------------------------------------- */
+
+async function saveCaseMedia(
+    event
+) {
+
+    event.preventDefault();
+
+
+    const caseId =
+        getCaseMediaCaseId();
+
+
+    if (!caseId) {
+
+        setCaseMediaMessage(
+            "Please select a case first.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    const title =
+        document.getElementById(
+            "case-media-title"
+        )?.value.trim();
+
+
+    const type =
+        document.getElementById(
+            "case-media-type"
+        )?.value;
+
+
+    const date =
+        document.getElementById(
+            "case-media-date"
+        )?.value ||
+        null;
+
+
+    const description =
+        document.getElementById(
+            "case-media-description"
+        )?.value.trim();
+
+
+    const sourceValue =
+        document.getElementById(
+            "case-media-source"
+        )?.value;
+
+
+    const sourceId =
+        sourceValue
+            ? Number(sourceValue)
+            : null;
+
+
+    const file =
+        document.getElementById(
+            "case-media-file"
+        )?.files?.[0];
+
+
+    const url =
+        document.getElementById(
+            "case-media-url"
+        )?.value.trim();
+
+
+    if (!title) {
+
+        setCaseMediaMessage(
+            "Please enter a title.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    if (!type) {
+
+        setCaseMediaMessage(
+            "Please select a media type.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------
+       EDIT EXISTING CASE MEDIA
+       ----------------------------------------- */
+
+    if (
+        caseMediaEditingId &&
+        caseMediaEditingTable === "case_media"
+    ) {
+
+        let mediaUrl =
+            url ||
+            null;
+
+
+        /* -----------------------------------------
+           KEEP EXISTING PDF IF NO NEW FILE
+           ----------------------------------------- */
+
+        if (
+            type === "PDF" &&
+            !file
+        ) {
+
+            const {
+                data: existingMedia,
+                error: fetchError
+            } =
+                await caseMediaSupabase
+                    .from(
+                        "case_media"
+                    )
+                    .select(
+                        "media_url"
+                    )
+                    .eq(
+                        "id",
+                        caseMediaEditingId
+                    )
+                    .single();
+
+
+            if (fetchError) {
+
+                console.error(
+                    "Existing PDF lookup error:",
+                    fetchError
+                );
+
+
+                setCaseMediaMessage(
+                    "Unable to load the existing PDF.",
+                    true
+                );
+
+
+                return;
+
+            }
+
+
+            mediaUrl =
+                existingMedia?.media_url ||
+                null;
+
+        }
+
+
+        /* -----------------------------------------
+           VIDEO / LINK
+           ----------------------------------------- */
+
+        if (
+            type === "Video" ||
+            type === "Link"
+        ) {
+
+            if (!mediaUrl) {
+
+                setCaseMediaMessage(
+                    "Please enter a URL.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                new URL(
+                    mediaUrl
+                );
+
+            } catch {
+
+                setCaseMediaMessage(
+                    "Please enter a valid URL.",
+                    true
+                );
+
+                return;
+
+            }
+
+        }
+
+
+        /* -----------------------------------------
+           REPLACEMENT PDF
+           ----------------------------------------- */
+
+        if (
+            type === "PDF" &&
+            file
+        ) {
+
+            if (
+                file.type !==
+                "application/pdf"
+            ) {
+
+                setCaseMediaMessage(
+                    "Please select a PDF file.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            setCaseMediaMessage(
+                "Uploading replacement PDF..."
+            );
+
+
+            const fileName =
+                Date.now() +
+                "-" +
+                Math.random()
+                    .toString(36)
+                    .substring(2, 10) +
+                ".pdf";
+
+
+            const filePath =
+                caseId +
+                "/documents/" +
+                fileName;
+
+
+            const {
+                error: uploadError
+            } =
+                await caseMediaSupabase
+                    .storage
+                    .from(
+                        "crime-scene-photos"
+                    )
+                    .upload(
+                        filePath,
+                        file,
+                        {
+                            cacheControl:
+                                "3600",
+                            upsert:
+                                false,
+                            contentType:
+                                "application/pdf"
+                        }
+                    );
+
+
+            if (uploadError) {
+
+                console.error(
+                    "Replacement PDF upload error:",
+                    uploadError
+                );
+
+
+                setCaseMediaMessage(
+                    uploadError.message ||
+                    "Unable to upload the replacement PDF.",
+                    true
+                );
+
+
+                return;
+
+            }
+
+
+            const {
+                data: publicData
+            } =
+                caseMediaSupabase
+                    .storage
+                    .from(
+                        "crime-scene-photos"
+                    )
+                    .getPublicUrl(
+                        filePath
+                    );
+
+
+            mediaUrl =
+                publicData?.publicUrl;
+
+
+            if (!mediaUrl) {
+
+                setCaseMediaMessage(
+                    "The PDF uploaded, but its public URL could not be created.",
+                    true
+                );
+
+                return;
+
+            }
+
+        }
+
+
+        /* -----------------------------------------
+           UPDATE DATABASE RECORD
+           ----------------------------------------- */
+
+        setCaseMediaMessage(
+            "Saving changes..."
+        );
+
+
+        const {
+            error: updateError
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_media"
+                )
+                .update({
+
+                    case_id:
+                        caseId,
+
+                    title:
+                        title,
+
+                    media_type:
+                        type,
+
+                    media_url:
+                        mediaUrl,
+
+                    media_date:
+                        date,
+
+                    description:
+                        description ||
+                        null,
+
+                    source_id:
+                        sourceId
+
+                })
+                .eq(
+                    "id",
+                    caseMediaEditingId
+                );
+
+
+        if (updateError) {
+
+            console.error(
+                "Case media update error:",
+                updateError
+            );
+
+
+            setCaseMediaMessage(
+                updateError.message ||
+                "Unable to save changes.",
+                true
+            );
+
+
+            return;
+
+        }
+
+
+        resetCaseMediaForm();
+
+
+        setCaseMediaMessage(
+            "Media updated successfully."
+        );
+
+
+        await loadCaseMedia(
+            caseId
+        );
+
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------
+       NEW IMAGE
+       ----------------------------------------- */
+
+    if (
+        type === "Image"
+    ) {
+
+        if (!file) {
+
+            setCaseMediaMessage(
+                "Please select an image.",
+                true
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            setCaseMediaMessage(
+                "Please select a valid image file.",
+                true
+            );
+
+            return;
+
+        }
+
+
+        await saveCrimeSceneImage(
+            caseId,
+            title,
+            date,
+            description,
+            sourceId,
+            file
+        );
+
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------
+       NEW PDF
+       ----------------------------------------- */
+
+    if (
+        type === "PDF"
+    ) {
+
+        if (!file) {
+
+            setCaseMediaMessage(
+                "Please select a PDF.",
+                true
+            );
+
+            return;
+
+        }
+
+
+        if (
+            file.type !==
+            "application/pdf"
+        ) {
+
+            setCaseMediaMessage(
+                "Please select a PDF file.",
+                true
+            );
+
+            return;
+
+        }
+
+
+        await saveGeneralMediaFile(
+            caseId,
+            title,
+            type,
+            date,
+            description,
+            sourceId,
+            file
+        );
+
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------
+       NEW VIDEO / LINK
+       ----------------------------------------- */
+
+    if (
+        type === "Video" ||
+        type === "Link"
+    ) {
+
+        if (!url) {
+
+            setCaseMediaMessage(
+                "Please enter a URL.",
+                true
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            new URL(
+                url
+            );
+
+        } catch {
+
+            setCaseMediaMessage(
+                "Please enter a valid URL.",
+                true
+            );
+
+            return;
+
+        }
+
+
+        await saveGeneralMediaUrl(
+            caseId,
+            title,
+            type,
+            date,
+            description,
+            sourceId,
+            url
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   SAVE IMAGE
+   ----------------------------------------- */
+
+async function saveCrimeSceneImage(
+    caseId,
+    title,
+    date,
+    description,
+    sourceId,
+    file
+) {
+
+    setCaseMediaMessage(
+        "Uploading image..."
+    );
+
+
+    const extension =
+        file.name.includes(".")
+            ? file.name
+                .split(".")
+                .pop()
+                .toLowerCase()
+            : "jpg";
+
+
+    const fileName =
+        Date.now() +
+        "-" +
+        Math.random()
+            .toString(36)
+            .substring(2, 10) +
+        "." +
+        extension;
+
+
+    const filePath =
+        caseId +
+        "/" +
+        fileName;
+
+
+    try {
+
+        const {
+            error: uploadError
+        } =
+            await caseMediaSupabase
+                .storage
+                .from(
+                    "crime-scene-photos"
+                )
+                .upload(
+                    filePath,
+                    file,
+                    {
+                        cacheControl:
+                            "3600",
+                        upsert:
+                            false
+                    }
+                );
+
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+
+        const {
+            data: publicData
+        } =
+            caseMediaSupabase
+                .storage
+                .from(
+                    "crime-scene-photos"
+                )
+                .getPublicUrl(
+                    filePath
+                );
+
+
+        const imageUrl =
+            publicData?.publicUrl;
+
+
+        if (!imageUrl) {
+
+            throw new Error(
+                "Unable to create the image URL."
+            );
+
+        }
+
+
+        const {
+            error
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_crime_scene_photos"
+                )
+                .insert({
+
+                    case_id:
+                        caseId,
+
+                    title:
+                        title,
+
+                    image_url:
+                        imageUrl,
+
+                    date_taken:
+                        date || null,
+
+                    description:
+                        description || null,
+
+                    source_id:
+                        sourceId
+
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        resetCaseMediaForm();
+
+
+        setCaseMediaMessage(
+            "Image added successfully."
+        );
+
+
+        await loadCaseMedia(
+            caseId
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Image save error:",
+            error
+        );
+
+
+        setCaseMediaMessage(
+            error.message ||
+            "Unable to add image.",
+            true
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   SAVE PDF
+   ----------------------------------------- */
+
+async function saveGeneralMediaFile(
+    caseId,
+    title,
+    type,
+    date,
+    description,
+    sourceId,
+    file
+) {
+
+    setCaseMediaMessage(
+        "Uploading PDF..."
+    );
+
+
+    const extension =
+        "pdf";
+
+
+    const fileName =
+        Date.now() +
+        "-" +
+        Math.random()
+            .toString(36)
+            .substring(2, 10) +
+        "." +
+        extension;
+
+
+    const filePath =
+        caseId +
+        "/documents/" +
+        fileName;
+
+
+    try {
+
+        const {
+            error: uploadError
+        } =
+            await caseMediaSupabase
+                .storage
+                .from(
+                    "crime-scene-photos"
+                )
+                .upload(
+                    filePath,
+                    file,
+                    {
+                        cacheControl:
+                            "3600",
+                        upsert:
+                            false,
+                        contentType:
+                            "application/pdf"
+                    }
+                );
+
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+
+        const {
+            data: publicData
+        } =
+            caseMediaSupabase
+                .storage
+                .from(
+                    "crime-scene-photos"
+                )
+                .getPublicUrl(
+                    filePath
+                );
+
+
+        const fileUrl =
+            publicData?.publicUrl;
+
+
+        if (!fileUrl) {
+
+            throw new Error(
+                "Unable to create the PDF URL."
+            );
+
+        }
+
+
+        const {
+            error
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_media"
+                )
+                .insert({
+
+                    case_id:
+                        caseId,
+
+                    title:
+                        title,
+
+                    media_type:
+                        type,
+
+                    media_url:
+                        fileUrl,
+
+                    media_date:
+                        date ||
+                        null,
+
+                    description:
+                        description ||
+                        null,
+
+                    source_id:
+                        sourceId
+
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        resetCaseMediaForm();
+
+
+        setCaseMediaMessage(
+            "PDF added successfully."
+        );
+
+
+        await loadCaseMedia(
+            caseId
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "PDF save error:",
+            error
+        );
+
+
+        setCaseMediaMessage(
+            error.message ||
+            "Unable to add PDF.",
+            true
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   SAVE VIDEO / LINK
+   ----------------------------------------- */
+
+async function saveGeneralMediaUrl(
+    caseId,
+    title,
+    type,
+    date,
+    description,
+    sourceId,
+    url
+) {
+
+    setCaseMediaMessage(
+        "Saving media..."
+    );
+
+
+    try {
+
+        const {
+            error
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_media"
+                )
+                .insert({
+
+                    case_id:
+                        caseId,
+
+                    title:
+                        title,
+
+                    media_type:
+                        type,
+
+                    media_url:
+                        url,
+
+                    media_date:
+                        date ||
+                        null,
+
+                    description:
+                        description ||
+                        null,
+
+                    source_id:
+                        sourceId
+
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        resetCaseMediaForm();
+
+
+        setCaseMediaMessage(
+            "Media added successfully."
+        );
+
+
+        await loadCaseMedia(
+            caseId
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Media URL save error:",
+            error
+        );
+
+
+        setCaseMediaMessage(
+            error.message ||
+            "Unable to save media.",
+            true
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   EDIT EXISTING GENERAL MEDIA
+   ----------------------------------------- */
+
+async function editCaseGeneralMedia(
+    mediaId
+) {
+
+    try {
+
+        const {
+            data: media,
+            error
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_media"
+                )
+                .select(
+                    "*"
+                )
+                .eq(
+                    "id",
+                    mediaId
+                )
+                .single();
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        if (!media) {
+
+            throw new Error(
+                "Media item could not be found."
+            );
+
+        }
+
+
+        caseMediaEditingId =
+            media.id;
+
+
+        caseMediaEditingTable =
+            "case_media";
+
+
+        const title =
+            document.getElementById(
+                "case-media-title"
+            );
+
+
+        const type =
+            document.getElementById(
+                "case-media-type"
+            );
+
+
+        const date =
+            document.getElementById(
+                "case-media-date"
+            );
+
+
+        const description =
+            document.getElementById(
+                "case-media-description"
+            );
+
+
+        const url =
+            document.getElementById(
+                "case-media-url"
+            );
+
+
+        if (title) {
+
+            title.value =
+                media.title ||
+                "";
+
+        }
+
+
+        if (type) {
+
+            type.value =
+                media.media_type ||
+                "";
+
+        }
+
+
+        if (date) {
+
+            date.value =
+                media.media_date ||
+                "";
+
+        }
+
+
+        if (description) {
+
+            description.value =
+                media.description ||
+                "";
+
+        }
+
+
+        if (url) {
+
+            url.value =
+                media.media_url ||
+                "";
+
+        }
+
+
+        await loadCaseMediaSources(
+            media.case_id,
+            media.source_id || ""
+        );
+
+
+        updateCaseMediaInput();
+
+
+        const submitButton =
+            document.getElementById(
+                "case-media-submit"
+            );
+
+
+        const cancelButton =
+            document.getElementById(
+                "case-media-cancel"
+            );
+
+
+        if (submitButton) {
+
+            submitButton.textContent =
+                "Save Changes";
+
+        }
+
+
+        if (cancelButton) {
+
+            cancelButton.style.display =
+                "inline-block";
+
+        }
+
+
+        setCaseMediaMessage(
+            "Editing media. Make your changes and click Save Changes."
+        );
+
+
+        document
+            .getElementById(
+                "case-media-form"
+            )
+            ?.scrollIntoView({
+                behavior:
+                    "smooth",
+                block:
+                    "center"
+            });
+
+
+    } catch (error) {
+
+        console.error(
+            "Media edit error:",
+            error
+        );
+
+
+        setCaseMediaMessage(
+            "Unable to load this media item.",
+            true
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   RESET FORM
+   ----------------------------------------- */
+
+function resetCaseMediaForm() {
+
+    const form =
+        document.getElementById(
+            "case-media-form"
+        );
+
+
+    if (form) {
+
+        form.reset();
+
+    }
+
+
+    caseMediaEditingId =
+        null;
+
+
+    caseMediaEditingTable =
+        null;
+
+
+    const submitButton =
+        document.getElementById(
+            "case-media-submit"
+        );
+
+
+    const cancelButton =
+        document.getElementById(
+            "case-media-cancel"
+        );
+
+
+    if (submitButton) {
+
+        submitButton.textContent =
+            "Add Media";
+
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.style.display =
+            "none";
+
+    }
+
+
+    updateCaseMediaInput();
+
+}
+
+
+/* -----------------------------------------
+   CANCEL EDIT
+   ----------------------------------------- */
+
+function cancelCaseMediaEdit() {
+
+    resetCaseMediaForm();
+
+
+    setCaseMediaMessage(
+        "Edit cancelled."
+    );
+
+}
+
+
+/* -----------------------------------------
+   REMOVE CRIME SCENE PHOTO
+   ----------------------------------------- */
+
+async function removeCaseCrimeScenePhoto(
+    id
+) {
+
+    if (
+        !confirm(
+            "Remove this image?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const {
+            data: photo,
+            error: fetchError
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_crime_scene_photos"
+                )
+                .select(
+                    "image_url"
+                )
+                .eq(
+                    "id",
+                    id
+                )
+                .single();
+
+
+        if (fetchError) {
+            throw fetchError;
+        }
+
+
+        const {
+            error: databaseError
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_crime_scene_photos"
+                )
+                .delete()
+                .eq(
+                    "id",
+                    id
+                );
+
+
+        if (databaseError) {
+            throw databaseError;
+        }
+
+
+        if (
+            photo &&
+            photo.image_url
+        ) {
+
+            await deleteCaseMediaStorageFile(
+                photo.image_url,
+                "crime-scene-photos"
+            );
+
+        }
+
+
+        await loadCaseMedia(
+            getCaseMediaCaseId()
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Image removal error:",
+            error
+        );
+
+
+        setCaseMediaMessage(
+            "Unable to remove this image.",
+            true
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   REMOVE GENERAL MEDIA
+   ----------------------------------------- */
+
+async function removeCaseGeneralMedia(
+    id
+) {
+
+    if (
+        !confirm(
+            "Remove this media item?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const {
+            data: media,
+            error: fetchError
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_media"
+                )
+                .select(
+                    "media_url"
+                )
+                .eq(
+                    "id",
+                    id
+                )
+                .single();
+
+
+        if (fetchError) {
+            throw fetchError;
+        }
+
+
+        const {
+            error: databaseError
+        } =
+            await caseMediaSupabase
+                .from(
+                    "case_media"
+                )
+                .delete()
+                .eq(
+                    "id",
+                    id
+                );
+
+
+        if (databaseError) {
+            throw databaseError;
+        }
+
+
+        /*
+           Only attempt Storage deletion if
+           this is one of our uploaded files.
+
+           External URLs such as YouTube or
+           news websites are NOT touched.
+        */
+
+        if (
+            media &&
+            media.media_url &&
+            media.media_url.includes(
+                "/crime-scene-photos/"
+            )
+        ) {
+
+            await deleteCaseMediaStorageFile(
+                media.media_url,
+                "crime-scene-photos"
+            );
+
+        }
+
+
+        await loadCaseMedia(
+            getCaseMediaCaseId()
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "General media removal error:",
+            error
+        );
+
+
+        setCaseMediaMessage(
+            "Unable to remove this media item.",
+            true
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   DELETE STORAGE FILE
+   ----------------------------------------- */
+
+async function deleteCaseMediaStorageFile(
+    publicUrl,
+    bucketName
+) {
+
+    try {
+
+        const marker =
+            "/" +
+            bucketName +
+            "/";
+
+
+        const markerIndex =
+            publicUrl.indexOf(
+                marker
+            );
+
+
+        if (
+            markerIndex === -1
+        ) {
+
+            return;
+
+        }
+
+
+        const storagePath =
+            decodeURIComponent(
+                publicUrl.substring(
+                    markerIndex +
+                    marker.length
+                )
+            );
+
+
+        if (!storagePath) {
+            return;
+        }
+
+
+        const {
+            error
+        } =
+            await caseMediaSupabase
+                .storage
+                .from(
+                    bucketName
+                )
+                .remove([
+                    storagePath
+                ]);
+
+
+        if (error) {
+
+            console.error(
+                "Storage deletion error:",
+                error
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Storage deletion exception:",
+            error
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   CASE SELECTOR
+   ----------------------------------------- */
+
+function initializeCaseMediaCaseListener() {
+
+    const selector =
+        document.getElementById(
+            "case-selector"
+        );
+
+
+    if (!selector) {
+        return;
+    }
+
+
+    selector.addEventListener(
+        "change",
+        async function() {
+
+            resetCaseMediaForm();
+
+
+            const caseId =
+                selector.value;
+
+
+            await loadCaseMediaSources(
+                caseId
+            );
+
+
+            await loadCaseMedia(
+                caseId
+            );
+
+        }
+    );
+
+}
+
+
+/* -----------------------------------------
+   INITIALIZE
+   ----------------------------------------- */
+
+function initializeCaseMedia() {
+
+    buildCaseMediaForm();
+
+
+    const caseId =
+        getCaseMediaCaseId();
+
+
+    if (caseId) {
+
+        loadCaseMediaSources(
+            caseId
+        );
+
+
+        loadCaseMedia(
+            caseId
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   DOM READY
    ----------------------------------------- */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    function() {
 
-        const crimeSceneForm =
-            document.getElementById(
-                "crime-scene-photo-form"
-            );
+        initializeCaseMedia();
 
-
-        if (crimeSceneForm) {
-
-            crimeSceneForm.addEventListener(
-                "submit",
-                addCrimeScenePhoto
-            );
-
-        }
+        initializeCaseMediaCaseListener();
 
     }
 );
 
 
 /* -----------------------------------------
-   MAKE FUNCTIONS AVAILABLE
+   PUBLIC FUNCTIONS
+   ----------------------------------------- */
+
+window.loadCaseMedia =
+    loadCaseMedia;
+
+
+window.loadCaseMediaSources =
+    loadCaseMediaSources;
+
+
+window.saveCaseMedia =
+    saveCaseMedia;
+
+
+window.editCaseGeneralMedia =
+    editCaseGeneralMedia;
+
+
+window.cancelCaseMediaEdit =
+    cancelCaseMediaEdit;
+
+
+window.removeCaseCrimeScenePhoto =
+    removeCaseCrimeScenePhoto;
+
+
+window.removeCaseGeneralMedia =
+    removeCaseGeneralMedia;
+
+
+/* -----------------------------------------
+   COMPATIBILITY NAMES
    ----------------------------------------- */
 
 window.loadCrimeScenePhotos =
-    loadCrimeScenePhotos;
+    loadCaseMedia;
+
 
 window.loadCrimeScenePhotoSources =
-    loadCrimeScenePhotoSources;
+    loadCaseMediaSources;
+
 
 window.addCrimeScenePhoto =
-    addCrimeScenePhoto;
+    saveCaseMedia;
+
 
 window.removeCrimeScenePhoto =
-    removeCrimeScenePhoto;
+    removeCaseCrimeScenePhoto;
+
+
+window.loadGeneralMedia =
+    loadCaseMedia;
+
+
+window.loadGeneralMediaSources =
+    loadCaseMediaSources;
+
+
+window.editGeneralMedia =
+    editCaseGeneralMedia;
+
+
+window.saveGeneralMedia =
+    saveCaseMedia;
+
+
+window.cancelGeneralMediaEdit =
+    cancelCaseMediaEdit;
+
+
+window.removeGeneralMedia =
+    removeCaseGeneralMedia;
+
+
+window.loadMediaSources =
+    loadCaseMediaSources;
+
+
+window.loadMedia =
+    loadCaseMedia;

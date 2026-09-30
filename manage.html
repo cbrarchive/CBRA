@@ -986,9 +986,8 @@
 
         </section>
 
-
         <!-- =================================================
-             CRIME SCENE / CASE MEDIA
+             CASE MEDIA
              ================================================= -->
 
         <section class="manage-section">
@@ -1002,174 +1001,12 @@
                     </p>
 
                     <h3>
-                        Media
+                        Case Media
                     </h3>
 
                     <p>
-                        Manage crime-scene photographs and other
-                        case-related media.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <!-- CRIME SCENE PHOTO MANAGEMENT -->
-
-            <div class="management-card">
-
-                <div class="management-card-header">
-
-                    <h4>
-                        Add Crime Scene Photo
-                    </h4>
-
-                    <p>
-                        Upload a photograph associated with the selected case.
-                    </p>
-
-                </div>
-
-
-                <form id="crime-scene-photo-form">
-
-                    <div class="form-grid">
-
-                        <div class="form-group">
-
-                            <label for="crime-scene-photo-title">
-                                Photo Title
-                            </label>
-
-                            <input
-                                type="text"
-                                id="crime-scene-photo-title"
-                                placeholder="Photo title"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="crime-scene-photo-date">
-                                Date Taken
-                            </label>
-
-                            <input
-                                type="date"
-                                id="crime-scene-photo-date"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group form-group-full">
-
-                            <label for="crime-scene-photo-file">
-                                Photo File
-                            </label>
-
-                            <input
-                                type="file"
-                                id="crime-scene-photo-file"
-                                accept="image/*"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="form-group form-group-full">
-
-                            <label for="crime-scene-photo-description">
-                                Description
-                            </label>
-
-                            <textarea
-                                id="crime-scene-photo-description"
-                                rows="4"
-                                placeholder="Briefly describe the photograph..."
-                            ></textarea>
-
-                        </div>
-
-
-                        <div class="form-group form-group-full">
-
-                            <label for="crime-scene-photo-source">
-                                Source
-                            </label>
-
-                            <select id="crime-scene-photo-source">
-
-                                <option value="">
-                                    -- No Source --
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-actions">
-
-                        <button
-                            type="submit"
-                            class="primary-button"
-                        >
-                            Add Crime Scene Photo
-                        </button>
-
-                    </div>
-
-
-                    <div
-                        id="crime-scene-photo-message"
-                        class="manage-message"
-                    ></div>
-
-                </form>
-
-            </div>
-
-
-            <div id="crime-scene-photo-list">
-
-                <p class="empty-message">
-                    Select a case to view this information.
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             GENERAL MEDIA
-             ================================================= -->
-
-        <section class="manage-section">
-
-            <div class="section-header">
-
-                <div>
-
-                    <p class="section-kicker">
-                        GENERAL MEDIA
-                    </p>
-
-                    <h3>
-                        General Media
-                    </h3>
-
-                    <p>
-                        Manage additional photographs, videos broadcasts, and other media
-                        associated with the selected case.
+                        Manage photographs, PDFs, videos, and external
+                        links associated with the selected case.
                     </p>
 
                 </div>
@@ -1180,13 +1017,12 @@
             <div id="general-media-management">
 
                 <div class="manage-placeholder">
-                    Select a case to manage general media.
+                    Select a case to manage case media.
                 </div>
 
             </div>
 
         </section>
-
 
         <!-- =================================================
              DOCUMENTS
@@ -1579,8 +1415,6 @@
 <script src="js/manage-tags.js"></script>
 
 <script src="js/manage-media.js"></script>
-
-<script src="js/manage-general-media.js"></script>
 
 <script src="js/manage-documents.js"></script>
 
