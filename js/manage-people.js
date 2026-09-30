@@ -46,27 +46,45 @@ function escapeHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
-
 function formatDate(dateValue) {
 
     if (!dateValue) {
         return "";
     }
 
-    const date =
-        new Date(dateValue);
+    // Handle date-only values without timezone conversion
+    const parts = String(dateValue).split("-");
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
+    if (parts.length === 3) {
+
+        const year = Number(parts[0]);
+        const month = Number(parts[1]);
+        const day = Number(parts[2]);
+
+        if (
+            Number.isInteger(year) &&
+            Number.isInteger(month) &&
+            Number.isInteger(day)
+        ) {
+            const date = new Date(
+                year,
+                month - 1,
+                day
+            );
+
+            return date.toLocaleDateString();
+        }
+    }
+
+    // Fallback for unexpected formats
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
         return dateValue;
     }
 
     return date.toLocaleDateString();
 }
-
 
 function formatOffenseName(offenseName) {
 
