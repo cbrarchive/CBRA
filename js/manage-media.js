@@ -11,8 +11,10 @@
    PDFs / Videos / Links:
    - case_media
 
-   This intentionally does NOT create a
-   third media database system.
+   Sensitivity fields:
+   - is_sensitive
+   - warning_type
+   - warning_text
    ========================================= */
 
 
@@ -52,7 +54,6 @@ function getCaseMediaCaseId() {
 
     }
 
-
     if (
         typeof window.getCurrentCaseId ===
         "function"
@@ -61,7 +62,6 @@ function getCaseMediaCaseId() {
         return window.getCurrentCaseId();
 
     }
-
 
     return "";
 
@@ -86,10 +86,8 @@ function setCaseMediaMessage(
         return;
     }
 
-
     element.textContent =
         message || "";
-
 
     element.style.color =
         isError
@@ -110,22 +108,18 @@ function buildCaseMediaForm() {
             "general-media-management"
         );
 
-
     const fallback =
         document.getElementById(
             "crime-scene-photo-management"
         );
 
-
     const target =
         container ||
         fallback;
 
-
     if (!target) {
         return;
     }
-
 
     if (
         document.getElementById(
@@ -136,7 +130,6 @@ function buildCaseMediaForm() {
         return;
 
     }
-
 
     target.innerHTML = `
 
@@ -321,6 +314,97 @@ function buildCaseMediaForm() {
                     </div>
 
 
+                    <!-- CONTENT WARNING -->
+
+                    <div
+                        class="form-group form-group-full"
+                    >
+
+                        <label>
+
+                            <input
+                                type="checkbox"
+                                id="case-media-sensitive"
+                            >
+
+                            Content Warning
+
+                        </label>
+
+                        <small>
+                            Enable this if viewers should be warned
+                            before viewing this media.
+                        </small>
+
+                    </div>
+
+
+                    <!-- WARNING OPTIONS -->
+
+                    <div
+                        class="form-group"
+                        id="case-media-warning-group"
+                        style="display:none;"
+                    >
+
+                        <label for="case-media-warning-type">
+                            Warning Type
+                        </label>
+
+                        <select
+                            id="case-media-warning-type"
+                        >
+
+                            <option value="">
+                                -- Select Warning --
+                            </option>
+
+                            <option value="Sensitive">
+                                Sensitive
+                            </option>
+
+                            <option value="Graphic Violence">
+                                Graphic Violence
+                            </option>
+
+                            <option value="Disturbing">
+                                Disturbing
+                            </option>
+
+                            <option value="Explicit">
+                                Explicit
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- CUSTOM WARNING -->
+
+                    <div
+                        class="form-group form-group-full"
+                        id="case-media-warning-text-group"
+                        style="display:none;"
+                    >
+
+                        <label for="case-media-warning-text">
+                            Warning Message
+                        </label>
+
+                        <textarea
+                            id="case-media-warning-text"
+                            rows="3"
+                            placeholder="Optional additional warning..."
+                        ></textarea>
+
+                    </div>
+
+
                 </div>
 
 
@@ -376,12 +460,15 @@ function buildCaseMediaForm() {
             "case-media-form"
         );
 
-
     const typeSelector =
         document.getElementById(
             "case-media-type"
         );
 
+    const sensitiveCheckbox =
+        document.getElementById(
+            "case-media-sensitive"
+        );
 
     const cancelButton =
         document.getElementById(
@@ -394,6 +481,16 @@ function buildCaseMediaForm() {
         typeSelector.addEventListener(
             "change",
             updateCaseMediaInput
+        );
+
+    }
+
+
+    if (sensitiveCheckbox) {
+
+        sensitiveCheckbox.addEventListener(
+            "change",
+            updateCaseMediaWarningInput
         );
 
     }
@@ -420,6 +517,7 @@ function buildCaseMediaForm() {
 
 
     updateCaseMediaInput();
+    updateCaseMediaWarningInput();
 
 }
 
@@ -435,24 +533,20 @@ function updateCaseMediaInput() {
             "case-media-type"
         )?.value;
 
-
     const fileGroup =
         document.getElementById(
             "case-media-file-group"
         );
-
 
     const urlGroup =
         document.getElementById(
             "case-media-url-group"
         );
 
-
     const fileInput =
         document.getElementById(
             "case-media-file"
         );
-
 
     const urlInput =
         document.getElementById(
@@ -521,6 +615,135 @@ function updateCaseMediaInput() {
         }
 
     }
+
+}
+
+
+/* -----------------------------------------
+   UPDATE WARNING INPUT
+   ----------------------------------------- */
+
+function updateCaseMediaWarningInput() {
+
+    const checkbox =
+        document.getElementById(
+            "case-media-sensitive"
+        );
+
+    const warningGroup =
+        document.getElementById(
+            "case-media-warning-group"
+        );
+
+    const warningTextGroup =
+        document.getElementById(
+            "case-media-warning-text-group"
+        );
+
+    if (!checkbox) {
+        return;
+    }
+
+
+    const enabled =
+        checkbox.checked;
+
+
+    if (warningGroup) {
+
+        warningGroup.style.display =
+            enabled
+                ? "block"
+                : "none";
+
+    }
+
+
+    if (warningTextGroup) {
+
+        warningTextGroup.style.display =
+            enabled
+                ? "block"
+                : "none";
+
+    }
+
+
+    if (!enabled) {
+
+        const warningType =
+            document.getElementById(
+                "case-media-warning-type"
+            );
+
+        const warningText =
+            document.getElementById(
+                "case-media-warning-text"
+            );
+
+
+        if (warningType) {
+            warningType.value = "";
+        }
+
+
+        if (warningText) {
+            warningText.value = "";
+        }
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   GET WARNING DATA
+   ----------------------------------------- */
+
+function getCaseMediaWarningData() {
+
+    const checkbox =
+        document.getElementById(
+            "case-media-sensitive"
+        );
+
+    const warningType =
+        document.getElementById(
+            "case-media-warning-type"
+        );
+
+    const warningText =
+        document.getElementById(
+            "case-media-warning-text"
+        );
+
+
+    const isSensitive =
+        checkbox?.checked === true;
+
+
+    return {
+
+        is_sensitive:
+            isSensitive,
+
+        warning_type:
+            isSensitive
+                ? (
+                    warningType?.value ||
+                    "Sensitive"
+                )
+                : null,
+
+        warning_text:
+            isSensitive
+                ? (
+                    warningText?.value.trim() ||
+                    null
+                )
+                : null
+
+    };
 
 }
 
@@ -939,6 +1162,29 @@ async function loadCaseMedia(
                 }
 
 
+                if (photo.is_sensitive) {
+
+                    addCaseMediaText(
+                        card,
+                        "⚠ Content Warning: " +
+                        (
+                            photo.warning_type ||
+                            "Sensitive"
+                        )
+                    );
+
+                    if (photo.warning_text) {
+
+                        addCaseMediaText(
+                            card,
+                            photo.warning_text
+                        );
+
+                    }
+
+                }
+
+
                 if (
                     photo.image_url
                 ) {
@@ -1125,6 +1371,29 @@ async function loadCaseMedia(
                             "Source unavailable"
                         )
                     );
+
+                }
+
+
+                if (media.is_sensitive) {
+
+                    addCaseMediaText(
+                        card,
+                        "⚠ Content Warning: " +
+                        (
+                            media.warning_type ||
+                            "Sensitive"
+                        )
+                    );
+
+                    if (media.warning_text) {
+
+                        addCaseMediaText(
+                            card,
+                            media.warning_text
+                        );
+
+                    }
 
                 }
 
@@ -1381,6 +1650,10 @@ async function saveCaseMedia(
         )?.value.trim();
 
 
+    const warningData =
+        getCaseMediaWarningData();
+
+
     if (!title) {
 
         setCaseMediaMessage(
@@ -1418,10 +1691,6 @@ async function saveCaseMedia(
             url ||
             null;
 
-
-        /* -----------------------------------------
-           KEEP EXISTING PDF IF NO NEW FILE
-           ----------------------------------------- */
 
         if (
             type === "PDF" &&
@@ -1472,10 +1741,6 @@ async function saveCaseMedia(
         }
 
 
-        /* -----------------------------------------
-           VIDEO / LINK
-           ----------------------------------------- */
-
         if (
             type === "Video" ||
             type === "Link"
@@ -1512,10 +1777,6 @@ async function saveCaseMedia(
 
         }
 
-
-        /* -----------------------------------------
-           REPLACEMENT PDF
-           ----------------------------------------- */
 
         if (
             type === "PDF" &&
@@ -1630,10 +1891,6 @@ async function saveCaseMedia(
         }
 
 
-        /* -----------------------------------------
-           UPDATE DATABASE RECORD
-           ----------------------------------------- */
-
         setCaseMediaMessage(
             "Saving changes..."
         );
@@ -1668,7 +1925,16 @@ async function saveCaseMedia(
                         null,
 
                     source_id:
-                        sourceId
+                        sourceId,
+
+                    is_sensitive:
+                        warningData.is_sensitive,
+
+                    warning_type:
+                        warningData.warning_type,
+
+                    warning_text:
+                        warningData.warning_text
 
                 })
                 .eq(
@@ -1757,7 +2023,8 @@ async function saveCaseMedia(
             date,
             description,
             sourceId,
-            file
+            file,
+            warningData
         );
 
 
@@ -1808,7 +2075,8 @@ async function saveCaseMedia(
             date,
             description,
             sourceId,
-            file
+            file,
+            warningData
         );
 
 
@@ -1863,7 +2131,8 @@ async function saveCaseMedia(
             date,
             description,
             sourceId,
-            url
+            url,
+            warningData
         );
 
     }
@@ -1881,7 +2150,8 @@ async function saveCrimeSceneImage(
     date,
     description,
     sourceId,
-    file
+    file,
+    warningData
 ) {
 
     setCaseMediaMessage(
@@ -1992,7 +2262,16 @@ async function saveCrimeSceneImage(
                         description || null,
 
                     source_id:
-                        sourceId
+                        sourceId,
+
+                    is_sensitive:
+                        warningData.is_sensitive,
+
+                    warning_type:
+                        warningData.warning_type,
+
+                    warning_text:
+                        warningData.warning_text
 
                 });
 
@@ -2045,16 +2324,13 @@ async function saveGeneralMediaFile(
     date,
     description,
     sourceId,
-    file
+    file,
+    warningData
 ) {
 
     setCaseMediaMessage(
         "Uploading PDF..."
     );
-
-
-    const extension =
-        "pdf";
 
 
     const fileName =
@@ -2063,8 +2339,7 @@ async function saveGeneralMediaFile(
         Math.random()
             .toString(36)
             .substring(2, 10) +
-        "." +
-        extension;
+        ".pdf";
 
 
     const filePath =
@@ -2158,7 +2433,16 @@ async function saveGeneralMediaFile(
                         null,
 
                     source_id:
-                        sourceId
+                        sourceId,
+
+                    is_sensitive:
+                        warningData.is_sensitive,
+
+                    warning_type:
+                        warningData.warning_type,
+
+                    warning_text:
+                        warningData.warning_text
 
                 });
 
@@ -2211,7 +2495,8 @@ async function saveGeneralMediaUrl(
     date,
     description,
     sourceId,
-    url
+    url,
+    warningData
 ) {
 
     setCaseMediaMessage(
@@ -2251,7 +2536,16 @@ async function saveGeneralMediaUrl(
                         null,
 
                     source_id:
-                        sourceId
+                        sourceId,
+
+                    is_sensitive:
+                        warningData.is_sensitive,
+
+                    warning_type:
+                        warningData.warning_type,
+
+                    warning_text:
+                        warningData.warning_text
 
                 });
 
@@ -2348,28 +2642,39 @@ async function editCaseGeneralMedia(
                 "case-media-title"
             );
 
-
         const type =
             document.getElementById(
                 "case-media-type"
             );
-
 
         const date =
             document.getElementById(
                 "case-media-date"
             );
 
-
         const description =
             document.getElementById(
                 "case-media-description"
             );
 
-
         const url =
             document.getElementById(
                 "case-media-url"
+            );
+
+        const sensitiveCheckbox =
+            document.getElementById(
+                "case-media-sensitive"
+            );
+
+        const warningType =
+            document.getElementById(
+                "case-media-warning-type"
+            );
+
+        const warningText =
+            document.getElementById(
+                "case-media-warning-text"
             );
 
 
@@ -2418,6 +2723,32 @@ async function editCaseGeneralMedia(
         }
 
 
+        if (sensitiveCheckbox) {
+
+            sensitiveCheckbox.checked =
+                media.is_sensitive === true;
+
+        }
+
+
+        if (warningType) {
+
+            warningType.value =
+                media.warning_type ||
+                "";
+
+        }
+
+
+        if (warningText) {
+
+            warningText.value =
+                media.warning_text ||
+                "";
+
+        }
+
+
         await loadCaseMediaSources(
             media.case_id,
             media.source_id || ""
@@ -2425,13 +2756,13 @@ async function editCaseGeneralMedia(
 
 
         updateCaseMediaInput();
+        updateCaseMediaWarningInput();
 
 
         const submitButton =
             document.getElementById(
                 "case-media-submit"
             );
-
 
         const cancelButton =
             document.getElementById(
@@ -2522,7 +2853,6 @@ function resetCaseMediaForm() {
             "case-media-submit"
         );
 
-
     const cancelButton =
         document.getElementById(
             "case-media-cancel"
@@ -2546,6 +2876,7 @@ function resetCaseMediaForm() {
 
 
     updateCaseMediaInput();
+    updateCaseMediaWarningInput();
 
 }
 
@@ -2727,14 +3058,6 @@ async function removeCaseGeneralMedia(
             throw databaseError;
         }
 
-
-        /*
-           Only attempt Storage deletion if
-           this is one of our uploaded files.
-
-           External URLs such as YouTube or
-           news websites are NOT touched.
-        */
 
         if (
             media &&

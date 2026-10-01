@@ -193,9 +193,295 @@ const caseId =
     params.get("id");
 
 
+/* =========================================
+   SENSITIVE MEDIA HELPERS
+   ========================================= */
+
+
 /* -----------------------------------------
-   LOAD CASE
+   CREATE CONTENT WARNING
    ----------------------------------------- */
+
+function createSensitiveMediaGate(
+    media,
+    revealCallback
+) {
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.className =
+        "media-warning";
+
+
+    const heading =
+        document.createElement(
+            "h4"
+        );
+
+    heading.className =
+        "media-warning-title";
+
+    heading.textContent =
+        "Content Warning";
+
+
+    const type =
+        document.createElement(
+            "p"
+        );
+
+    type.className =
+        "media-warning-type";
+
+    type.innerHTML =
+        "<strong>Warning:</strong> " +
+        escapeHTML(
+            media.warning_type ||
+            "Sensitive Content"
+        );
+
+
+    wrapper.appendChild(
+        heading
+    );
+
+    wrapper.appendChild(
+        type
+    );
+
+
+    if (
+        media.warning_text &&
+        String(
+            media.warning_text
+        ).trim() !== ""
+    ) {
+
+        const warningText =
+            document.createElement(
+                "p"
+            );
+
+        warningText.className =
+            "media-warning-text";
+
+        warningText.textContent =
+            media.warning_text;
+
+
+        wrapper.appendChild(
+            warningText
+        );
+
+    }
+
+
+    const button =
+        document.createElement(
+            "button"
+        );
+
+    button.type =
+        "button";
+
+    button.className =
+        "media-warning-button";
+
+    button.textContent =
+        "I Understand — Show Media";
+
+
+    button.addEventListener(
+        "click",
+        function() {
+
+            wrapper.remove();
+
+            revealCallback();
+
+        }
+    );
+
+
+    wrapper.appendChild(
+        button
+    );
+
+
+    return wrapper;
+
+}
+
+
+/* -----------------------------------------
+   CREATE IMAGE
+   ----------------------------------------- */
+
+function createCaseMediaImage(
+    photo
+) {
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.className =
+        "crime-scene-photo-image";
+
+
+    const image =
+        document.createElement(
+            "img"
+        );
+
+    image.src =
+        photo.image_url;
+
+    image.alt =
+        photo.title ||
+        "Crime scene photo";
+
+    image.loading =
+        "lazy";
+
+
+    wrapper.appendChild(
+        image
+    );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+    link.href =
+        photo.image_url;
+
+    link.target =
+        "_blank";
+
+    link.rel =
+        "noopener noreferrer";
+
+    link.textContent =
+        "Open Full Image";
+
+
+    wrapper.appendChild(
+        link
+    );
+
+
+    return wrapper;
+
+}
+
+
+/* -----------------------------------------
+   CREATE MEDIA LINK
+   ----------------------------------------- */
+
+function createCaseMediaLink(
+    media
+) {
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+    link.href =
+        media.media_url;
+
+    link.target =
+        "_blank";
+
+    link.rel =
+        "noopener noreferrer";
+
+
+    if (
+        media.media_type ===
+        "PDF"
+    ) {
+
+        link.textContent =
+            "Open PDF";
+
+    } else if (
+        media.media_type ===
+        "Video"
+    ) {
+
+        link.textContent =
+            "Open Video";
+
+    } else {
+
+        link.textContent =
+            "Open Media";
+
+    }
+
+
+    wrapper.appendChild(
+        link
+    );
+
+
+    return wrapper;
+
+}
+
+
+/* -----------------------------------------
+   ADD MEDIA CONTENT WITH WARNING
+   ----------------------------------------- */
+
+function addSensitiveMediaContent(
+    container,
+    media,
+    revealCallback
+) {
+
+    if (
+        media.is_sensitive === true
+    ) {
+
+        const gate =
+            createSensitiveMediaGate(
+                media,
+                revealCallback
+            );
+
+        container.appendChild(
+            gate
+        );
+
+        return;
+
+    }
+
+
+    revealCallback();
+
+}
+
+
+/* =========================================
+   LOAD CASE
+   ========================================= */
 
 async function loadCase() {
 
@@ -361,7 +647,8 @@ async function loadCase() {
             ).trim() === ""
         ) {
 
-            additionalContainer.textContent = "—";
+            additionalContainer.textContent =
+                "—";
 
         } else {
 
@@ -401,9 +688,9 @@ async function loadCase() {
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD PEOPLE
-   ----------------------------------------- */
+   ========================================= */
 
 async function loadPeople() {
 
@@ -463,10 +750,6 @@ async function loadPeople() {
     }
 
 
-    /* -----------------------------------------
-       SORT PEOPLE BY ROLE
-       ----------------------------------------- */
-
     const rolePriority = {
 
         offender: 1,
@@ -512,10 +795,6 @@ async function loadPeople() {
     });
 
 
-    /* -----------------------------------------
-       DISPLAY PEOPLE
-       ----------------------------------------- */
-
     const html =
         data
             .map(item => {
@@ -540,10 +819,6 @@ async function loadPeople() {
                         "Unnamed Person"
                     );
 
-                /*
-                 * Victims do NOT link to person profiles.
-                 * All other roles remain clickable.
-                 */
                 const nameHTML =
                     role === "victim"
                         ? displayName
@@ -575,8 +850,7 @@ async function loadPeople() {
                         <p>
                             <strong>Age:</strong>
                             ${escapeHTML(
-                                person.age_at_case ??
-                                "—"
+                                person.age_at_case ?? "—"
                             )}
                         </p>
 
@@ -614,9 +888,9 @@ async function loadPeople() {
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD TAGS
-   ----------------------------------------- */
+   ========================================= */
 
 async function loadTags() {
 
@@ -825,9 +1099,9 @@ async function loadTags() {
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD CRIME SCENE PHOTOS
-   ----------------------------------------- */
+   ========================================= */
 
 async function loadCrimeScenePhotos() {
 
@@ -852,7 +1126,10 @@ async function loadCrimeScenePhotos() {
                 image_url,
                 date_taken,
                 description,
-                source_id
+                source_id,
+                is_sensitive,
+                warning_type,
+                warning_text
             `)
             .eq(
                 "case_id",
@@ -901,76 +1178,138 @@ async function loadCrimeScenePhotos() {
         }
     );
 
-    container.innerHTML =
-        data
-            .map(photo => {
 
-                return `
-                    <div class="crime-scene-photo-card">
+    container.innerHTML = "";
 
-                        <div class="crime-scene-photo-image">
 
-                            <img
-                                src="${escapeHTML(
-                                    photo.image_url
-                                )}"
-                                alt="${escapeHTML(
-                                    photo.title ||
-                                    "Crime scene photo"
-                                )}"
-                                loading="lazy"
-                            >
+    data.forEach(photo => {
 
-                        </div>
+        const card =
+            document.createElement(
+                "div"
+            );
 
-                        <div class="crime-scene-photo-info">
+        card.className =
+            "crime-scene-photo-card";
 
-                            <h3>
-                                ${escapeHTML(
-                                    photo.title ||
-                                    "Untitled Photo"
-                                )}
-                            </h3>
 
-                            <p>
-                                <strong>Date Taken:</strong>
-                                ${
-                                    photo.date_taken
-                                        ? escapeHTML(
-                                            formatDate(
-                                                photo.date_taken
-                                            )
-                                        )
-                                        : "—"
-                                }
-                            </p>
+        const imageArea =
+            document.createElement(
+                "div"
+            );
 
-                            ${
-                                photo.description
-                                    ? `
-                                        <p>
-                                            ${escapeHTML(
-                                                photo.description
-                                            )}
-                                        </p>
-                                    `
-                                    : ""
-                            }
+        imageArea.className =
+            "crime-scene-photo-image";
 
-                        </div>
 
-                    </div>
-                `;
+        const info =
+            document.createElement(
+                "div"
+            );
 
-            })
-            .join("");
+        info.className =
+            "crime-scene-photo-info";
+
+
+        const title =
+            document.createElement(
+                "h3"
+            );
+
+        title.textContent =
+            photo.title ||
+            "Untitled Photo";
+
+        info.appendChild(
+            title
+        );
+
+
+        const date =
+            document.createElement(
+                "p"
+            );
+
+        date.innerHTML =
+            "<strong>Date Taken:</strong> " +
+            escapeHTML(
+                photo.date_taken
+                    ? formatDate(
+                        photo.date_taken
+                    )
+                    : "—"
+            );
+
+        info.appendChild(
+            date
+        );
+
+
+        if (
+            photo.description
+        ) {
+
+            const description =
+                document.createElement(
+                    "p"
+                );
+
+            description.textContent =
+                photo.description;
+
+            info.appendChild(
+                description
+            );
+
+        }
+
+
+        card.appendChild(
+            imageArea
+        );
+
+        card.appendChild(
+            info
+        );
+
+
+        container.appendChild(
+            card
+        );
+
+
+        const revealImage =
+            function() {
+
+                const image =
+                    createCaseMediaImage(
+                        photo
+                    );
+
+                imageArea.innerHTML =
+                    "";
+
+                imageArea.appendChild(
+                    image
+                );
+
+            };
+
+
+        addSensitiveMediaContent(
+            imageArea,
+            photo,
+            revealImage
+        );
+
+    });
 
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD MEDIA
-   ----------------------------------------- */
+   ========================================= */
 
 async function loadMedia() {
 
@@ -993,7 +1332,11 @@ async function loadMedia() {
                 media_type,
                 description,
                 media_url,
-                source_id
+                media_date,
+                source_id,
+                is_sensitive,
+                warning_type,
+                warning_text
             `)
             .eq(
                 "case_id",
@@ -1027,14 +1370,18 @@ async function loadMedia() {
 
     }
 
+
     const sourceIds =
         data
             .map(
-                media => media.source_id
+                media =>
+                    media.source_id
             )
             .filter(Boolean);
 
+
     let sources = [];
+
 
     if (sourceIds.length > 0) {
 
@@ -1070,6 +1417,7 @@ async function loadMedia() {
 
     }
 
+
     const sourceMap =
         new Map(
             sources.map(
@@ -1080,91 +1428,215 @@ async function loadMedia() {
             )
         );
 
+
     container.innerHTML =
-        data
-            .map(media => {
+        "";
 
-                const source =
-                    media.source_id
-                        ? sourceMap.get(
-                            media.source_id
+
+    data.forEach(media => {
+
+        const card =
+            document.createElement(
+                "div"
+            );
+
+        card.className =
+            "media-card";
+
+
+        const title =
+            document.createElement(
+                "h3"
+            );
+
+        title.textContent =
+            media.title ||
+            "Untitled Media";
+
+        card.appendChild(
+            title
+        );
+
+
+        const type =
+            document.createElement(
+                "p"
+            );
+
+        type.innerHTML =
+            "<strong>Type:</strong> " +
+            escapeHTML(
+                media.media_type ||
+                "—"
+            );
+
+        card.appendChild(
+            type
+        );
+
+
+        if (
+            media.media_date
+        ) {
+
+            const date =
+                document.createElement(
+                    "p"
+                );
+
+            date.innerHTML =
+                "<strong>Date:</strong> " +
+                escapeHTML(
+                    formatDate(
+                        media.media_date
+                    )
+                );
+
+            card.appendChild(
+                date
+            );
+
+        }
+
+
+        if (
+            media.description
+        ) {
+
+            const description =
+                document.createElement(
+                    "p"
+                );
+
+            description.textContent =
+                media.description;
+
+            card.appendChild(
+                description
+            );
+
+        }
+
+
+        const mediaArea =
+            document.createElement(
+                "div"
+            );
+
+        mediaArea.className =
+            "case-media-content";
+
+
+        card.appendChild(
+            mediaArea
+        );
+
+
+        const revealMedia =
+            function() {
+
+                mediaArea.innerHTML =
+                    "";
+
+                if (
+                    media.media_url
+                ) {
+
+                    mediaArea.appendChild(
+                        createCaseMediaLink(
+                            media
                         )
-                        : null;
+                    );
 
-                return `
-                    <div class="media-card">
+                }
 
-                        <h3>
-                            ${escapeHTML(
-                                media.title ||
-                                "Untitled Media"
-                            )}
-                        </h3>
+            };
 
-                        <p>
-                            <strong>Type:</strong>
-                            ${escapeHTML(
-                                media.media_type ||
-                                "—"
-                            )}
-                        </p>
 
-                        ${
-                            media.description
-                                ? `
-                                    <p>
-                                        ${escapeHTML(
-                                            media.description
-                                        )}
-                                    </p>
-                                `
-                                : ""
-                        }
+        addSensitiveMediaContent(
+            mediaArea,
+            media,
+            revealMedia
+        );
 
-                        ${
-                            media.media_url
-                                ? createExternalLink(
-                                    media.media_url,
-                                    "Open Media"
-                                )
-                                : ""
-                        }
 
-                        ${
-                            source
-                                ? `
-                                    <p>
-                                        <strong>Source:</strong>
-                                        ${escapeHTML(
-                                            source.title ||
-                                            "Untitled Source"
-                                        )}
-                                    </p>
+        const source =
+            media.source_id
+                ? sourceMap.get(
+                    media.source_id
+                )
+                : null;
 
-                                    ${
-                                        source.url
-                                            ? createExternalLink(
-                                                source.url,
-                                                "View Source"
-                                            )
-                                            : ""
-                                    }
-                                `
-                                : ""
-                        }
 
-                    </div>
-                `;
+        if (source) {
 
-            })
-            .join("");
+            const sourceInfo =
+                document.createElement(
+                    "div"
+                );
+
+            sourceInfo.className =
+                "media-source";
+
+
+            const sourceText =
+                document.createElement(
+                    "p"
+                );
+
+            sourceText.innerHTML =
+                "<strong>Source:</strong> " +
+                escapeHTML(
+                    source.title ||
+                    "Untitled Source"
+                );
+
+            sourceInfo.appendChild(
+                sourceText
+            );
+
+
+            if (
+                source.url
+            ) {
+
+                const sourceLink =
+                    document.createElement(
+                        "div"
+                    );
+
+                sourceLink.innerHTML =
+                    createExternalLink(
+                        source.url,
+                        "View Source"
+                    );
+
+                sourceInfo.appendChild(
+                    sourceLink
+                );
+
+            }
+
+
+            card.appendChild(
+                sourceInfo
+            );
+
+        }
+
+
+        container.appendChild(
+            card
+        );
+
+    });
 
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD DOCUMENTS
-   ----------------------------------------- */
+   ========================================= */
 
 async function loadDocuments() {
 
@@ -1430,9 +1902,9 @@ async function loadDocuments() {
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD CASE SOURCES
-   ----------------------------------------- */
+   ========================================= */
 
 async function loadCaseSources() {
 
@@ -1630,9 +2102,9 @@ async function loadCaseSources() {
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD LINKS
-   ----------------------------------------- */
+   ========================================= */
 
 async function loadLinks() {
 
@@ -1731,9 +2203,9 @@ async function loadLinks() {
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD RELATED CASES
-   ----------------------------------------- */
+   ========================================= */
 
 async function loadRelatedCases() {
 
@@ -1929,9 +2401,9 @@ async function loadRelatedCases() {
 }
 
 
-/* -----------------------------------------
+/* =========================================
    LOAD EVERYTHING
-   ----------------------------------------- */
+   ========================================= */
 
 loadCase();
 loadPeople();

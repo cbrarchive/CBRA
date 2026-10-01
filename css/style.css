@@ -5610,3 +5610,61 @@ body:has(.case-header) .case-section h2::before {
     }
 
 }
+
+/* =========================================
+   CBRA — SENSITIVE MEDIA WARNING
+   ========================================= */
+
+.media-warning {
+    border: 1px solid #8b8b8b;
+    background: #f3f0e8;
+    padding: 20px;
+    margin: 10px 0 15px;
+    text-align: left;
+}
+
+.media-warning-title {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.media-warning-type {
+    margin: 0 0 10px;
+}
+
+.media-warning-text {
+    margin: 10px 0 15px;
+    padding: 10px;
+    border-left: 3px solid #777;
+    background: #e8e5dc;
+}
+
+.media-warning-button {
+    cursor: pointer;
+    padding: 9px 15px;
+    border: 1px solid #333;
+    background: #222;
+    color: #fff;
+    font-weight: 600;
+}
+
+.media-warning-button:hover {
+    opacity: 0.85;
+}
+
+.case-media-content {
+    margin-top: 12px;
+}
+
+.crime-scene-photo-image {
+    margin-bottom: 12px;
+}
+
+.crime-scene-photo-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 8px;
+}
