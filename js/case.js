@@ -1908,199 +1908,252 @@ async function loadDocuments() {
 
 async function loadCaseSources() {
 
-    const container =
-        document.getElementById(
-            "case-sources"
-        );
+    const container = document.getElementById("case-sources");
 
-    if (!container) return;
+    if (!container) {
+        console.error("CBRA: #case-sources was not found.");
+        return;
+    }
+
+    console.log("CBRA: Loading case sources...");
+    console.log("CBRA: Case ID =", caseId);
+
+    container.innerHTML = `
+        <p class="empty-message">
+            Loading sources...
+        </p>
+    `;
+
+
+    /* =========================================
+       GET LINKED SOURCE IDs
+       ========================================= */
 
     const {
         data: sourceCases,
         error: sourceCaseError
-    } =
-        await supabaseClient
-            .from("source_cases")
-            .select(`
-                source_id
-            `)
-            .eq(
-                "case_id",
-                caseId
-            );
+    } = await supabaseClient
+        .from("source_cases")
+        .select("source_id")
+        .eq("case_id", caseId);
+
+
+    console.log("CBRA: source_cases result =", sourceCases);
+    console.log("CBRA: source_cases error =", sourceCaseError);
+
 
     if (sourceCaseError) {
 
         console.error(
-            "CBRA: Error loading source_cases:",
+            "CBRA: Unable to load source links:",
             sourceCaseError
         );
 
-        showEmpty(
-            "case-sources",
-            "Unable to load sources."
-        );
+        container.innerHTML = `
+            <p class="empty-message">
+                Unable to load sources.
+            </p>
+        `;
 
         return;
-
     }
 
-    if (
-        !sourceCases ||
-        sourceCases.length === 0
-    ) {
 
-        showEmpty(
-            "case-sources",
-            "No sources are linked to this case."
+    if (!sourceCases || sourceCases.length === 0) {
+
+        console.warn(
+            "CBRA: No source_cases rows found for case:",
+            caseId
         );
 
-        return;
+        container.innerHTML = `
+            <p class="empty-message">
+                No sources are linked to this case.
+            </p>
+        `;
 
+        return;
     }
 
-    const sourceIds =
-        sourceCases
-            .map(
-                relationship =>
-                    relationship.source_id
-            )
-            .filter(
-                sourceId =>
-                    sourceId !== null &&
-                    sourceId !== undefined
-            );
+
+    /* =========================================
+       EXTRACT SOURCE IDS
+       ========================================= */
+
+    const sourceIds = sourceCases
+        .map(row => row.source_id)
+        .filter(id => id !== null && id !== undefined);
+
+
+    console.log("CBRA: Source IDs =", sourceIds);
+
 
     if (sourceIds.length === 0) {
 
-        showEmpty(
-            "case-sources",
-            "No sources are linked to this case."
-        );
+        container.innerHTML = `
+            <p class="empty-message">
+                No sources are linked to this case.
+            </p>
+        `;
 
         return;
-
     }
+
+
+    /* =========================================
+       LOAD SOURCES
+       ========================================= */
 
     const {
         data: sources,
         error: sourceError
-    } =
-        await supabaseClient
-            .from("sources")
-            .select(`
-                id,
-                title,
-                url,
-                source_type,
-                publication_date
-            `)
-            .in(
-                "id",
-                sourceIds
-            );
+    } = await supabaseClient
+        .from("sources")
+        .select(`
+            id,
+            title,
+            url,
+            source_type,
+            publication_date
+        `)
+        .in("id", sourceIds);
+
+
+    console.log("CBRA: sources result =", sources);
+    console.log("CBRA: sources error =", sourceError);
+
 
     if (sourceError) {
 
         console.error(
-            "CBRA: Error loading source records:",
+            "CBRA: Unable to load source records:",
             sourceError
         );
 
-        showEmpty(
-            "case-sources",
-            "Unable to load sources."
-        );
+        container.innerHTML = `
+            <p class="empty-message">
+                Unable to load source records.
+            </p>
+        `;
 
         return;
-
     }
 
-    if (
-        !sources ||
-        sources.length === 0
-    ) {
 
-        showEmpty(
-            "case-sources",
-            "The linked source records could not be found."
+    if (!sources || sources.length === 0) {
+
+        console.warn(
+            "CBRA: source_cases exists, but no matching sources were returned."
         );
 
-        return;
+        container.innerHTML = `
+            <p class="empty-message">
+                No source records were found.
+            </p>
+        `;
 
+        return;
     }
 
-    sources.sort(
-        (a, b) => {
 
-            if (!a.publication_date) return 1;
+    /* =========================================
+       SORT SOURCES
+       ========================================= */
 
-            if (!b.publication_date) return -1;
+    sources.sort((a, b) => {
 
-            return (
-                new Date(
-                    b.publication_date
-                ) -
-                new Date(
-                    a.publication_date
-                )
-            );
+        const dateA = a.publication_date
+            ? new Date(a.publication_date)
+            : new Date(0);
+
+        const dateB = b.publication_date
+            ? new Date(b.publication_date)
+            : new Date(0);
+
+        return dateB - dateA;
+
+    });
+
+
+    /* =========================================
+       RENDER SOURCES
+       ========================================= */
+
+    container.innerHTML = "";
+
+
+    sources.forEach(source => {
+
+        const card = document.createElement("article");
+
+        card.className = "source-card";
+
+
+        const title = document.createElement("h3");
+
+        title.textContent =
+            source.title || "Untitled Source";
+
+
+        card.appendChild(title);
+
+
+        if (source.source_type) {
+
+            const type = document.createElement("p");
+
+            type.className = "source-type";
+
+            type.textContent =
+                source.source_type;
+
+            card.appendChild(type);
 
         }
+
+
+        if (source.publication_date) {
+
+            const date = document.createElement("p");
+
+            date.className = "source-date";
+
+            date.textContent =
+                new Date(
+                    source.publication_date
+                ).toLocaleDateString();
+
+            card.appendChild(date);
+
+        }
+
+
+        if (source.url) {
+
+            const link = document.createElement("a");
+
+            link.href = source.url;
+
+            link.target = "_blank";
+
+            link.rel = "noopener noreferrer";
+
+            link.textContent = "View Source";
+
+            card.appendChild(link);
+
+        }
+
+
+        container.appendChild(card);
+
+    });
+
+
+    console.log(
+        `CBRA: Successfully rendered ${sources.length} source(s).`
     );
-
-    container.innerHTML =
-        sources
-            .map(source => {
-
-                return `
-                    <div class="source-card">
-
-                        <h3>
-                            ${escapeHTML(
-                                source.title ||
-                                "Untitled Source"
-                            )}
-                        </h3>
-
-                        <p>
-                            <strong>Type:</strong>
-                            ${escapeHTML(
-                                source.source_type ||
-                                "—"
-                            )}
-                        </p>
-
-                        <p>
-                            <strong>Publication Date:</strong>
-                            ${
-                                source.publication_date
-                                    ? escapeHTML(
-                                        formatDate(
-                                            source.publication_date
-                                        )
-                                    )
-                                    : "—"
-                            }
-                        </p>
-
-                        ${
-                            source.url
-                                ? createExternalLink(
-                                    source.url,
-                                    "View Source"
-                                )
-                                : ""
-                        }
-
-                    </div>
-                `;
-
-            })
-            .join("");
-
 }
-
 
 /* =========================================
    LOAD LINKS
