@@ -6042,7 +6042,6 @@ body:has(.case-header) .case-section h2::before {
     background: rgba(255, 255, 255, 0.5);
 }
 
-
 /* -----------------------------------------
    SOURCES
    ----------------------------------------- */
@@ -6051,10 +6050,38 @@ body:has(.case-header) .case-section h2::before {
 #case-sources .source-entry,
 #case-sources .source-card {
     margin-bottom: 12px;
-    padding: 13px 15px;
-    border: 1px solid rgba(70, 70, 70, 0.3);
-    border-left: 4px solid #625d52;
-    background: rgba(255, 255, 255, 0.45);
+
+    padding: 14px 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e4e0d7,
+            #dedbd2
+        );
+
+    border: 1px solid #c5c1b7;
+
+    border-left: 3px solid #aaa59a;
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.06);
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
+}
+
+#case-sources > div:hover,
+#case-sources .source-entry:hover,
+#case-sources .source-card:hover {
+    border-left-color: var(--accent);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.09);
+
+    transform: translateY(-1px);
 }
 
 
