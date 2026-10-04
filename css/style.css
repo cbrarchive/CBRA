@@ -7009,3 +7009,92 @@ body:has(.case-header) .case-section h2::before {
 
     clear: both !important;
 }
+
+/* =========================================================
+   SOURCES — FINAL LAYOUT FIX
+   ========================================================= */
+
+#case-sources .source-card,
+#case-sources .source-item,
+#case-sources .source-entry {
+    display: block !important;
+    position: relative !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 14px 16px !important;
+}
+
+
+/* BLACK SOURCE TITLE */
+
+#case-sources .source-title,
+#case-sources .source-card h3,
+#case-sources .source-card h4,
+#case-sources .source-item h3,
+#case-sources .source-item h4 {
+    display: block !important;
+    position: relative !important;
+
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+
+    color: var(--ink) !important;
+
+    font-family: var(--serif) !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+
+    line-height: 1.4 !important;
+}
+
+
+/* RED SOURCE TYPE */
+
+#case-sources .source-type {
+    display: block !important;
+    position: relative !important;
+
+    margin: 0 0 5px !important;
+    padding: 0 !important;
+
+    color: var(--accent) !important;
+
+    font-family: var(--mono) !important;
+    font-size: 8px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.5 !important;
+}
+
+
+/* DATE */
+
+#case-sources .source-date {
+    display: block !important;
+    position: relative !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #8f8b82 !important;
+
+    font-family: var(--mono) !important;
+    font-size: 8px !important;
+
+    line-height: 1.5 !important;
+}
+
+
+/* VIEW SOURCE LINK */
+
+#case-sources .source-card a,
+#case-sources .source-item a,
+#case-sources .source-entry a {
+    display: block !important;
+
+    position: relative !important;
+
+    margin-top: 10px !important;
+
+    clear: both !important;
+}
