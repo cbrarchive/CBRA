@@ -1900,23 +1900,33 @@ async function loadDocuments() {
             .join("");
 
 }
-
-
 /* =========================================
    LOAD CASE SOURCES
    ========================================= */
 
 async function loadCaseSources() {
 
-    const container = document.getElementById("case-sources");
+    const container =
+        document.getElementById(
+            "case-sources"
+        );
 
     if (!container) {
-        console.error("CBRA: #case-sources was not found.");
+        console.error(
+            "CBRA: #case-sources was not found."
+        );
         return;
     }
 
-    console.log("CBRA: Loading case sources...");
-    console.log("CBRA: Case ID =", caseId);
+    console.log(
+        "CBRA: Loading case sources..."
+    );
+
+    console.log(
+        "CBRA: Case ID =",
+        caseId
+    );
+
 
     container.innerHTML = `
         <p class="empty-message">
@@ -1926,233 +1936,349 @@ async function loadCaseSources() {
 
 
     /* =========================================
-       GET LINKED SOURCE IDs
+       1. LOAD SOURCES USING sources.case_id
+       ========================================= */
+
+    const {
+        data: directSources,
+        error: directSourceError
+    } =
+        await supabaseClient
+            .from("sources")
+            .select(`
+                id,
+                title,
+                url,
+                source_type,
+                publication_date,
+                case_id
+            `)
+            .eq(
+                "case_id",
+                caseId
+            );
+
+
+    console.log(
+        "CBRA: Direct case sources =",
+        directSources
+    );
+
+    console.log(
+        "CBRA: Direct source error =",
+        directSourceError
+    );
+
+
+    if (directSourceError) {
+
+        console.error(
+            "CBRA: Error loading direct case sources:",
+            directSourceError
+        );
+
+    }
+
+
+    /* =========================================
+       2. LOAD SOURCE IDS FROM source_cases
        ========================================= */
 
     const {
         data: sourceCases,
         error: sourceCaseError
-    } = await supabaseClient
-        .from("source_cases")
-        .select("source_id")
-        .eq("case_id", caseId);
+    } =
+        await supabaseClient
+            .from("source_cases")
+            .select(
+                "source_id"
+            )
+            .eq(
+                "case_id",
+                caseId
+            );
 
 
-    console.log("CBRA: source_cases result =", sourceCases);
-    console.log("CBRA: source_cases error =", sourceCaseError);
+    console.log(
+        "CBRA: source_cases result =",
+        sourceCases
+    );
+
+    console.log(
+        "CBRA: source_cases error =",
+        sourceCaseError
+    );
+
+
+    let linkedSources = [];
 
 
     if (sourceCaseError) {
 
-        console.error(
-            "CBRA: Unable to load source links:",
+        console.warn(
+            "CBRA: Could not load source_cases:",
             sourceCaseError
         );
 
-        container.innerHTML = `
-            <p class="empty-message">
-                Unable to load sources.
-            </p>
-        `;
+    } else if (
+        sourceCases &&
+        sourceCases.length > 0
+    ) {
 
-        return;
+        const sourceIds =
+            sourceCases
+                .map(
+                    row =>
+                        row.source_id
+                )
+                .filter(Boolean);
+
+
+        if (sourceIds.length > 0) {
+
+            const {
+                data: sourceData,
+                error: sourceError
+            } =
+                await supabaseClient
+                    .from("sources")
+                    .select(`
+                        id,
+                        title,
+                        url,
+                        source_type,
+                        publication_date,
+                        case_id
+                    `)
+                    .in(
+                        "id",
+                        sourceIds
+                    );
+
+
+            if (sourceError) {
+
+                console.warn(
+                    "CBRA: Could not load linked sources:",
+                    sourceError
+                );
+
+            } else {
+
+                linkedSources =
+                    sourceData || [];
+
+            }
+
+        }
+
     }
 
 
-    if (!sourceCases || sourceCases.length === 0) {
+    /* =========================================
+       3. COMBINE BOTH SOURCE SYSTEMS
+       ========================================= */
+
+    const allSources = [
+        ...(directSources || []),
+        ...linkedSources
+    ];
+
+
+    /* =========================================
+       4. REMOVE DUPLICATES
+       ========================================= */
+
+    const uniqueSources =
+        Array.from(
+            new Map(
+                allSources.map(
+                    source => [
+                        source.id,
+                        source
+                    ]
+                )
+            ).values()
+        );
+
+
+    console.log(
+        "CBRA: Combined unique sources =",
+        uniqueSources
+    );
+
+
+    /* =========================================
+       5. EMPTY STATE
+       ========================================= */
+
+    if (
+        uniqueSources.length === 0
+    ) {
+
+        container.innerHTML = `
+            <p class="empty-message">
+                No sources are linked to this case.
+            </p>
+        `;
 
         console.warn(
-            "CBRA: No source_cases rows found for case:",
+            "CBRA: No sources found for case:",
             caseId
         );
 
-        container.innerHTML = `
-            <p class="empty-message">
-                No sources are linked to this case.
-            </p>
-        `;
-
         return;
+
     }
 
 
     /* =========================================
-       EXTRACT SOURCE IDS
+       6. SORT BY PUBLICATION DATE
        ========================================= */
 
-    const sourceIds = sourceCases
-        .map(row => row.source_id)
-        .filter(id => id !== null && id !== undefined);
+    uniqueSources.sort(
+        (a, b) => {
 
+            const dateA =
+                a.publication_date
+                    ? new Date(
+                        a.publication_date
+                    )
+                    : new Date(0);
 
-    console.log("CBRA: Source IDs =", sourceIds);
+            const dateB =
+                b.publication_date
+                    ? new Date(
+                        b.publication_date
+                    )
+                    : new Date(0);
 
+            return dateB - dateA;
 
-    if (sourceIds.length === 0) {
-
-        container.innerHTML = `
-            <p class="empty-message">
-                No sources are linked to this case.
-            </p>
-        `;
-
-        return;
-    }
-
-
-    /* =========================================
-       LOAD SOURCES
-       ========================================= */
-
-    const {
-        data: sources,
-        error: sourceError
-    } = await supabaseClient
-        .from("sources")
-        .select(`
-            id,
-            title,
-            url,
-            source_type,
-            publication_date
-        `)
-        .in("id", sourceIds);
-
-
-    console.log("CBRA: sources result =", sources);
-    console.log("CBRA: sources error =", sourceError);
-
-
-    if (sourceError) {
-
-        console.error(
-            "CBRA: Unable to load source records:",
-            sourceError
-        );
-
-        container.innerHTML = `
-            <p class="empty-message">
-                Unable to load source records.
-            </p>
-        `;
-
-        return;
-    }
-
-
-    if (!sources || sources.length === 0) {
-
-        console.warn(
-            "CBRA: source_cases exists, but no matching sources were returned."
-        );
-
-        container.innerHTML = `
-            <p class="empty-message">
-                No source records were found.
-            </p>
-        `;
-
-        return;
-    }
+        }
+    );
 
 
     /* =========================================
-       SORT SOURCES
-       ========================================= */
-
-    sources.sort((a, b) => {
-
-        const dateA = a.publication_date
-            ? new Date(a.publication_date)
-            : new Date(0);
-
-        const dateB = b.publication_date
-            ? new Date(b.publication_date)
-            : new Date(0);
-
-        return dateB - dateA;
-
-    });
-
-
-    /* =========================================
-       RENDER SOURCES
+       7. RENDER SOURCES
        ========================================= */
 
     container.innerHTML = "";
 
 
-    sources.forEach(source => {
+    uniqueSources.forEach(
+        source => {
 
-        const card = document.createElement("article");
+            const card =
+                document.createElement(
+                    "article"
+                );
 
-        card.className = "source-card";
-
-
-        const title = document.createElement("h3");
-
-        title.textContent =
-            source.title || "Untitled Source";
-
-
-        card.appendChild(title);
+            card.className =
+                "source-card";
 
 
-        if (source.source_type) {
+            const title =
+                document.createElement(
+                    "h3"
+                );
 
-            const type = document.createElement("p");
+            title.textContent =
+                source.title ||
+                "Untitled Source";
 
-            type.className = "source-type";
 
-            type.textContent =
-                source.source_type;
+            card.appendChild(
+                title
+            );
 
-            card.appendChild(type);
+
+            if (
+                source.source_type
+            ) {
+
+                const type =
+                    document.createElement(
+                        "p"
+                    );
+
+                type.className =
+                    "source-type";
+
+                type.textContent =
+                    source.source_type;
+
+                card.appendChild(
+                    type
+                );
+
+            }
+
+
+            if (
+                source.publication_date
+            ) {
+
+                const date =
+                    document.createElement(
+                        "p"
+                    );
+
+                date.className =
+                    "source-date";
+
+                date.textContent =
+                    formatDate(
+                        source.publication_date
+                    );
+
+                card.appendChild(
+                    date
+                );
+
+            }
+
+
+            if (
+                source.url
+            ) {
+
+                const link =
+                    document.createElement(
+                        "a"
+                    );
+
+                link.href =
+                    source.url;
+
+                link.target =
+                    "_blank";
+
+                link.rel =
+                    "noopener noreferrer";
+
+                link.textContent =
+                    "View Source";
+
+                card.appendChild(
+                    link
+                );
+
+            }
+
+
+            container.appendChild(
+                card
+            );
 
         }
-
-
-        if (source.publication_date) {
-
-            const date = document.createElement("p");
-
-            date.className = "source-date";
-
-            date.textContent =
-                new Date(
-                    source.publication_date
-                ).toLocaleDateString();
-
-            card.appendChild(date);
-
-        }
-
-
-        if (source.url) {
-
-            const link = document.createElement("a");
-
-            link.href = source.url;
-
-            link.target = "_blank";
-
-            link.rel = "noopener noreferrer";
-
-            link.textContent = "View Source";
-
-            card.appendChild(link);
-
-        }
-
-
-        container.appendChild(card);
-
-    });
+    );
 
 
     console.log(
-        `CBRA: Successfully rendered ${sources.length} source(s).`
+        `CBRA: Successfully rendered ${uniqueSources.length} unique source(s).`
     );
+
 }
 
 /* =========================================
