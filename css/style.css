@@ -6342,124 +6342,111 @@ body:has(.case-header) .case-section h2::before {
 }
 /* ============================================================
    CBRA — CASE INFORMATION
+   Clean archival record layout
    ============================================================ */
 
 .case-information-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    border-top: 1px solid #c8c1b5;
-    border-left: 1px solid #c8c1b5;
     margin-top: 20px;
+    border-top: 1px solid #c9c3b8;
 }
 
 .case-information-grid > div {
-    padding: 15px 17px;
-    min-height: 70px;
-    box-sizing: border-box;
-    background: #f7f4ed;
-    border-right: 1px solid #c8c1b5;
-    border-bottom: 1px solid #c8c1b5;
+    padding: 16px 18px 17px 0;
+    margin-right: 18px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #d8d3ca;
+    min-height: 0;
 }
 
-/* Labels */
+/* Remove the old decorative corners */
+.case-information-grid > div::after {
+    display: none;
+}
+
 .case-information-grid strong {
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 
     font-family: inherit;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
 
-    color: #73777a;
+    color: #77736d;
 }
 
-/* Values */
 .case-information-grid span {
     display: block;
 
     font-family: inherit;
-    font-size: 0.98rem;
+    font-size: 0.94rem;
     font-weight: 500;
     line-height: 1.45;
 
-    color: #292d31;
+    color: #292b2d;
 }
 
-/* Slight emphasis on important fields */
 #case-classification,
 #case-offense,
 #case-outcome {
     font-weight: 600;
 }
 
-/* Date */
-#case-date {
-    font-weight: 500;
-}
-
-/* Additional offenses */
 #case-additional-offenses {
     line-height: 1.5;
 }
 
 #case-additional-offenses .additional-offenses-list {
     margin: 0;
-    padding-left: 17px;
+    padding-left: 16px;
 }
 
 #case-additional-offenses .additional-offenses-list li {
     margin-bottom: 3px;
 }
 
-/* Counts */
 #case-victims,
 #case-fatalities {
     font-weight: 600;
 }
 
-/* Description */
-.case-description {
-    margin-top: 18px;
-    padding: 20px 22px;
 
-    background: #f3f0e8;
-    border: 1px solid #c8c1b5;
+/* ------------------------------------------------------------
+   Description
+   ------------------------------------------------------------ */
+
+.case-description {
+    margin-top: 22px;
+    padding: 20px 0;
+
+    background: transparent;
+    border-top: 1px solid #c9c3b8;
+    border-bottom: 1px solid #d8d3ca;
 }
 
 .case-description h3 {
-    margin: 0 0 10px;
+    margin: 0 0 9px;
 
     font-family: inherit;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
 
-    color: #73777a;
+    color: #77736d;
 }
 
 .case-description p {
     margin: 0;
 
     font-family: inherit;
-    font-size: 0.96rem;
+    font-size: 0.95rem;
     line-height: 1.7;
-
-    color: #34383c;
-}
-
-
-/* ------------------------------------------------------------
-   Subtle archive accents
-   ------------------------------------------------------------ */
-
-.case-information-grid > div:nth-child(1),
-.case-information-grid > div:nth-child(5),
-.case-information-grid > div:nth-child(6),
-.case-information-grid > div:nth-child(8) {
-    border-top: 2px solid #858078;
+    color: #343638;
 }
 
 
@@ -6479,6 +6466,6 @@ body:has(.case-header) .case-section h2::before {
     }
 
     .case-information-grid > div {
-        min-height: auto;
+        margin-right: 0;
     }
 }
