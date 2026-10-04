@@ -6889,3 +6889,54 @@ body:has(.case-header) .case-section h2::before {
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================================================
+   FIX — SOURCE TEXT OVERLAP
+   ========================================================= */
+
+#case-sources,
+#case-sources > div,
+#case-sources .source-entry,
+#case-sources .source-card {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+#case-sources .source-card,
+#case-sources .source-entry {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+}
+
+#case-sources h3,
+#case-sources h4,
+#case-sources p,
+#case-sources span,
+#case-sources a {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+#case-sources h3,
+#case-sources h4 {
+    line-height: 1.35;
+}
+
+#case-sources p {
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+#case-sources .source-title {
+    display: block;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+
+#case-sources .source-type,
+#case-sources .source-date {
+    display: block;
+    line-height: 1.4;
+}
