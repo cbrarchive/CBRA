@@ -1202,58 +1202,56 @@ main > p {
     overflow-wrap: anywhere;
 }
 
-
 /* =========================================================
    21. CASE INFORMATION
    ========================================================= */
 
-.case-information {
+.case-information-grid {
     display: grid;
 
     grid-template-columns:
         repeat(2, minmax(0, 1fr));
 
+    gap: 0;
+
     margin-top: 18px;
 
     background: var(--paper);
 
-    border-top: 1px solid var(--border-light);
-
-    border-bottom: 1px solid var(--border-light);
+    border: 1px solid var(--border-light);
 
     min-width: 0;
 }
 
-.case-info-item {
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
+.case-information-grid > div {
     min-width: 0;
     min-height: 68px;
 
-    padding: 12px 16px;
+    padding: 13px 16px;
 
     background: var(--paper);
 
-    color: var(--ink);
-
+    border: none;
     border-bottom: 1px solid var(--border-light);
+
+    color: var(--ink);
 }
 
-.case-info-item:nth-child(odd) {
+.case-information-grid > div:nth-child(odd) {
     border-right: 1px solid var(--border-light);
 }
 
-.case-info-label,
-.info-label,
-.case-information-label,
-.case-info-item .info-label {
+.case-information-grid > div:nth-last-child(-n + 2) {
+    border-bottom: none;
+}
+
+
+/* Labels */
+
+.case-information-grid strong {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 
     color: var(--ink-muted);
 
@@ -1270,7 +1268,10 @@ main > p {
     text-transform: uppercase;
 }
 
-.case-info-value {
+
+/* Values */
+
+.case-information-grid span {
     display: block;
 
     min-width: 0;
@@ -1283,81 +1284,110 @@ main > p {
 
     font-weight: 500;
 
-    line-height: 1.4;
+    line-height: 1.45;
 
     overflow-wrap: anywhere;
 }
 
-.case-info-primary {
-    background: var(--paper);
 
-    border-left: 3px solid var(--accent);
+/* Primary information */
 
-    padding-left: 13px;
-}
-
-.case-info-primary .case-info-value {
-    color: var(--ink);
-
-    font-size: 14px;
-
+#case-classification,
+#case-offense,
+#case-outcome {
     font-weight: 600;
 }
 
-.case-info-wide {
-    grid-column: 1 / -1;
 
-    border-right: none !important;
+/* Additional offenses */
+
+#case-additional-offenses {
+    line-height: 1.45;
 }
 
-.case-info-grid,
-.case-information-grid {
-    display: grid;
+#case-additional-offenses .additional-offenses-list {
+    margin: 0;
 
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+    padding-left: 16px;
+}
 
-    gap: 0;
+#case-additional-offenses .additional-offenses-list li {
+    margin-bottom: 3px;
+}
 
-    background: var(--paper);
+
+/* Counts */
+
+#case-victims,
+#case-fatalities {
+    font-family: var(--mono);
+
+    font-size: 12px;
+
+    font-weight: 500;
+}
+
+
+/* Description */
+
+.case-description {
+    margin-top: 18px;
+
+    padding: 20px 0 0;
+
+    background: transparent;
 
     border-top: 1px solid var(--border-light);
-
-    border-bottom: 1px solid var(--border-light);
-
-    min-width: 0;
 }
 
-.info-item,
-.case-information-item {
-    min-width: 0;
-    min-height: 68px;
+.case-description h3 {
+    margin: 0 0 8px;
 
-    padding: 12px 16px;
-
-    background: var(--paper);
-
-    border: none;
-
-    border-bottom: 1px solid var(--border-light);
-}
-
-.info-item:nth-child(odd),
-.case-information-item:nth-child(odd) {
-    border-right: 1px solid var(--border-light);
-}
-
-.info-item span:last-child,
-.case-information-item span:last-child {
     color: var(--ink);
+
+    font-family: var(--serif);
+
+    font-size: 18px;
+
+    font-weight: 400;
+}
+
+.case-description p {
+    max-width: 900px;
+
+    margin: 0;
+
+    color: var(--ink-soft);
+
+    font-family: var(--sans);
 
     font-size: 13px;
 
-    line-height: 1.4;
-
-    overflow-wrap: anywhere;
+    line-height: 1.65;
 }
 
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .case-information-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .case-information-grid > div,
+    .case-information-grid > div:nth-child(odd) {
+        border-right: none;
+
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .case-information-grid > div:last-child {
+        border-bottom: none;
+    }
+}
 
 /* =========================================================
    22. PEOPLE
@@ -6340,132 +6370,4 @@ body:has(.case-header) .case-section h2::before {
     }
 
 }
-/* ============================================================
-   CBRA — CASE INFORMATION
-   Clean archival record layout
-   ============================================================ */
 
-.case-information-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    margin-top: 20px;
-    border-top: 1px solid #c9c3b8;
-}
-
-.case-information-grid > div {
-    padding: 16px 18px 17px 0;
-    margin-right: 18px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid #d8d3ca;
-    min-height: 0;
-}
-
-/* Remove the old decorative corners */
-.case-information-grid > div::after {
-    display: none;
-}
-
-.case-information-grid strong {
-    display: block;
-    margin-bottom: 5px;
-
-    font-family: inherit;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-
-    color: #77736d;
-}
-
-.case-information-grid span {
-    display: block;
-
-    font-family: inherit;
-    font-size: 0.94rem;
-    font-weight: 500;
-    line-height: 1.45;
-
-    color: #292b2d;
-}
-
-#case-classification,
-#case-offense,
-#case-outcome {
-    font-weight: 600;
-}
-
-#case-additional-offenses {
-    line-height: 1.5;
-}
-
-#case-additional-offenses .additional-offenses-list {
-    margin: 0;
-    padding-left: 16px;
-}
-
-#case-additional-offenses .additional-offenses-list li {
-    margin-bottom: 3px;
-}
-
-#case-victims,
-#case-fatalities {
-    font-weight: 600;
-}
-
-
-/* ------------------------------------------------------------
-   Description
-   ------------------------------------------------------------ */
-
-.case-description {
-    margin-top: 22px;
-    padding: 20px 0;
-
-    background: transparent;
-    border-top: 1px solid #c9c3b8;
-    border-bottom: 1px solid #d8d3ca;
-}
-
-.case-description h3 {
-    margin: 0 0 9px;
-
-    font-family: inherit;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-
-    color: #77736d;
-}
-
-.case-description p {
-    margin: 0;
-
-    font-family: inherit;
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: #343638;
-}
-
-
-/* ------------------------------------------------------------
-   Responsive
-   ------------------------------------------------------------ */
-
-@media (max-width: 950px) {
-    .case-information-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .case-information-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .case-information-grid > div {
-        margin-right: 0;
-    }
-}
