@@ -6889,54 +6889,123 @@ body:has(.case-header) .case-section h2::before {
         grid-template-columns: 1fr;
     }
 }
-
 /* =========================================================
-   FIX — SOURCE TEXT OVERLAP
+   FIX — SOURCE TITLE / TYPE OVERLAP
    ========================================================= */
 
-#case-sources,
-#case-sources > div,
-#case-sources .source-entry,
-#case-sources .source-card {
-    min-width: 0;
-    box-sizing: border-box;
-}
-
 #case-sources .source-card,
-#case-sources .source-entry {
-    height: auto;
-    min-height: 0;
-    overflow: visible;
+#case-sources .source-item,
+#case-sources .source-entry,
+#case-sources .case-source {
+    display: block !important;
+    position: relative !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    padding: 14px 16px !important;
+
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
 }
 
-#case-sources h3,
-#case-sources h4,
-#case-sources p,
-#case-sources span,
-#case-sources a {
-    max-width: 100%;
-    overflow-wrap: anywhere;
-    word-break: normal;
+
+/* TITLE */
+
+#case-sources .source-title,
+#case-sources .source-card h3,
+#case-sources .source-card h4,
+#case-sources .source-item h3,
+#case-sources .source-item h4 {
+    display: block !important;
+    position: static !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    margin: 0 0 7px 0 !important;
+    padding: 0 !important;
+
+    color: var(--ink) !important;
+
+    font-family: var(--serif) !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+
+    line-height: 1.4 !important;
+
+    white-space: normal !important;
+    overflow: visible !important;
 }
 
-#case-sources h3,
-#case-sources h4 {
-    line-height: 1.35;
+
+/* RED SOURCE TYPE */
+
+#case-sources .source-type {
+    display: block !important;
+    position: static !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    margin: 0 0 4px 0 !important;
+    padding: 0 !important;
+
+    color: var(--accent) !important;
+
+    font-family: var(--mono) !important;
+    font-size: 8px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.5 !important;
+
+    white-space: normal !important;
 }
 
-#case-sources p {
-    line-height: 1.5;
-    margin-bottom: 6px;
-}
 
-#case-sources .source-title {
-    display: block;
-    line-height: 1.4;
-    margin-bottom: 5px;
-}
+/* DATE */
 
-#case-sources .source-type,
 #case-sources .source-date {
-    display: block;
-    line-height: 1.4;
+    display: block !important;
+    position: static !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #8f8b82 !important;
+
+    font-family: var(--mono) !important;
+    font-size: 8px !important;
+
+    line-height: 1.5 !important;
+}
+
+
+/* OTHER SOURCE TEXT */
+
+#case-sources .source-card p,
+#case-sources .source-item p,
+#case-sources .source-entry p {
+    position: static !important;
+
+    margin: 5px 0 !important;
+
+    line-height: 1.5 !important;
+
+    white-space: normal !important;
+}
+
+
+/* LINKS */
+
+#case-sources a {
+    position: static !important;
+
+    float: none !important;
+
+    clear: both !important;
 }
