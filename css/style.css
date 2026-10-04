@@ -6889,212 +6889,47 @@ body:has(.case-header) .case-section h2::before {
         grid-template-columns: 1fr;
     }
 }
-/* =========================================================
-   FIX — SOURCE TITLE / TYPE OVERLAP
-   ========================================================= */
 
-#case-sources .source-card,
-#case-sources .source-item,
-#case-sources .source-entry,
-#case-sources .case-source {
-    display: block !important;
+/* SOURCE RECORDS / SOURCES HEADER FIX */
+
+#case-sources {
+    position: relative;
+}
+
+#case-sources > h2 {
     position: relative !important;
-
+    display: block !important;
     height: auto !important;
     min-height: 0 !important;
-
-    padding: 14px 16px !important;
-
-    box-sizing: border-box !important;
-
+    margin: 0 0 16px !important;
+    padding: 0 0 11px !important;
     overflow: visible !important;
+    line-height: 1.3 !important;
 }
 
-
-/* TITLE */
-
-#case-sources .source-title,
-#case-sources .source-card h3,
-#case-sources .source-card h4,
-#case-sources .source-item h3,
-#case-sources .source-item h4 {
+/* "SOURCE RECORDS" banner */
+#case-sources > h2::before {
+    content: "SOURCE RECORDS";
     display: block !important;
     position: static !important;
-
-    width: auto !important;
+    width: fit-content !important;
     height: auto !important;
-
-    margin: 0 0 7px 0 !important;
+    margin: 0 0 6px !important;
     padding: 0 !important;
-
-    color: var(--ink) !important;
-
-    font-family: var(--serif) !important;
-    font-size: 16px !important;
-    font-weight: 400 !important;
-
-    line-height: 1.4 !important;
-
-    white-space: normal !important;
-    overflow: visible !important;
-}
-
-
-/* RED SOURCE TYPE */
-
-#case-sources .source-type {
-    display: block !important;
-    position: static !important;
-
-    width: auto !important;
-    height: auto !important;
-
-    margin: 0 0 4px 0 !important;
-    padding: 0 !important;
-
     color: var(--accent) !important;
-
     font-family: var(--mono) !important;
-    font-size: 8px !important;
+    font-size: 7px !important;
     font-weight: 600 !important;
-
-    line-height: 1.5 !important;
-
-    white-space: normal !important;
+    letter-spacing: 1.6px !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    transform: none !important;
 }
 
-
-/* DATE */
-
-#case-sources .source-date {
-    display: block !important;
-    position: static !important;
-
-    width: auto !important;
-    height: auto !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    color: #8f8b82 !important;
-
-    font-family: var(--mono) !important;
-    font-size: 8px !important;
-
-    line-height: 1.5 !important;
-}
-
-
-/* OTHER SOURCE TEXT */
-
-#case-sources .source-card p,
-#case-sources .source-item p,
-#case-sources .source-entry p {
-    position: static !important;
-
-    margin: 5px 0 !important;
-
-    line-height: 1.5 !important;
-
-    white-space: normal !important;
-}
-
-
-/* LINKS */
-
-#case-sources a {
-    position: static !important;
-
-    float: none !important;
-
-    clear: both !important;
-}
-
-/* =========================================================
-   SOURCES — FINAL LAYOUT FIX
-   ========================================================= */
-
-#case-sources .source-card,
-#case-sources .source-item,
-#case-sources .source-entry {
-    display: block !important;
-    position: relative !important;
-    height: auto !important;
-    min-height: 0 !important;
-    padding: 14px 16px !important;
-}
-
-
-/* BLACK SOURCE TITLE */
-
-#case-sources .source-title,
-#case-sources .source-card h3,
-#case-sources .source-card h4,
-#case-sources .source-item h3,
-#case-sources .source-item h4 {
-    display: block !important;
-    position: relative !important;
-
-    margin: 0 0 8px !important;
-    padding: 0 !important;
-
+/* Actual "Sources & References" title */
+#case-sources > h2 {
     color: var(--ink) !important;
-
     font-family: var(--serif) !important;
-    font-size: 16px !important;
+    font-size: 23px !important;
     font-weight: 400 !important;
-
-    line-height: 1.4 !important;
-}
-
-
-/* RED SOURCE TYPE */
-
-#case-sources .source-type {
-    display: block !important;
-    position: relative !important;
-
-    margin: 0 0 5px !important;
-    padding: 0 !important;
-
-    color: var(--accent) !important;
-
-    font-family: var(--mono) !important;
-    font-size: 8px !important;
-    font-weight: 600 !important;
-
-    line-height: 1.5 !important;
-}
-
-
-/* DATE */
-
-#case-sources .source-date {
-    display: block !important;
-    position: relative !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    color: #8f8b82 !important;
-
-    font-family: var(--mono) !important;
-    font-size: 8px !important;
-
-    line-height: 1.5 !important;
-}
-
-
-/* VIEW SOURCE LINK */
-
-#case-sources .source-card a,
-#case-sources .source-item a,
-#case-sources .source-entry a {
-    display: block !important;
-
-    position: relative !important;
-
-    margin-top: 10px !important;
-
-    clear: both !important;
 }
