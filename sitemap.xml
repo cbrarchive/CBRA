@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
     <url>
@@ -7,19 +6,19 @@
     </url>
 
     <url>
-        <loc>https://cbrarchive.github.io/CBRA/Archive.html</loc>
+        <loc>https://cbrarchive.github.io/CBRA/archive.html</loc>
     </url>
 
     <url>
-        <loc>https://cbrarchive.github.io/CBRA/Statistics.html</loc>
+        <loc>https://cbrarchive.github.io/CBRA/statistics.html</loc>
     </url>
 
     <url>
-        <loc>https://cbrarchive.github.io/CBRA/Resources.html</loc>
+        <loc>https://cbrarchive.github.io/CBRA/resources.html</loc>
     </url>
 
     <url>
-        <loc>https://cbrarchive.github.io/CBRA/About.html</loc>
+        <loc>https://cbrarchive.github.io/CBRA/about.html</loc>
     </url>
 
 </urlset>
