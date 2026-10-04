@@ -6340,3 +6340,203 @@ body:has(.case-header) .case-section h2::before {
     }
 
 }
+
+/* ============================================================
+   CBRA — CASE INFORMATION GRID
+   ============================================================ */
+
+.case-information,
+#case-information {
+    margin-top: 30px;
+}
+
+
+/* -----------------------------
+   Information Grid
+----------------------------- */
+
+.case-info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 20px;
+}
+
+
+/* -----------------------------
+   Individual Information Boxes
+----------------------------- */
+
+.case-info-item {
+    position: relative;
+    background: #f4f0e7;
+    border: 1px solid #b9af9d;
+    min-height: 78px;
+    padding: 16px 18px;
+    box-sizing: border-box;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.07);
+}
+
+
+/* subtle archive-file corner */
+
+.case-info-item::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    width: 18px;
+    height: 18px;
+    border-left: 1px solid #b9af9d;
+    border-bottom: 1px solid #b9af9d;
+    background: #e7e1d4;
+}
+
+
+/* -----------------------------
+   Labels
+----------------------------- */
+
+.case-info-item strong,
+.case-info-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #626873;
+    font-family: monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+
+/* -----------------------------
+   Values
+----------------------------- */
+
+.case-info-item span,
+.case-info-value {
+    display: block;
+    color: #252a30;
+    font-size: 1rem;
+    line-height: 1.35;
+    font-weight: 500;
+}
+
+
+/* -----------------------------
+   Larger Fields
+----------------------------- */
+
+.case-info-item.description,
+.case-info-description {
+    grid-column: span 4;
+    min-height: 120px;
+}
+
+
+.case-info-item.additional-offenses,
+.case-info-additional {
+    grid-column: span 2;
+}
+
+
+/* -----------------------------
+   Case Description
+----------------------------- */
+
+#case-description {
+    line-height: 1.7;
+    color: #343a40;
+}
+
+
+/* -----------------------------
+   Additional Offenses
+----------------------------- */
+
+.additional-offenses-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.additional-offenses-list li {
+    margin-bottom: 5px;
+}
+
+
+/* -----------------------------
+   Important Numbers
+----------------------------- */
+
+.case-info-number {
+    font-family: monospace;
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+}
+
+
+/* -----------------------------
+   Desktop Emphasis
+----------------------------- */
+
+.case-info-item.case-date {
+    border-left: 4px solid #5f6872;
+}
+
+.case-info-item.case-classification {
+    border-left: 4px solid #71645c;
+}
+
+.case-info-item.case-offense {
+    border-left: 4px solid #68705f;
+}
+
+.case-info-item.case-outcome {
+    border-left: 4px solid #665d6d;
+}
+
+
+/* -----------------------------
+   Tablet
+----------------------------- */
+
+@media (max-width: 1000px) {
+
+    .case-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .case-info-item.description,
+    .case-info-description {
+        grid-column: span 2;
+    }
+
+    .case-info-item.additional-offenses,
+    .case-info-additional {
+        grid-column: span 2;
+    }
+
+}
+
+
+/* -----------------------------
+   Mobile
+----------------------------- */
+
+@media (max-width: 600px) {
+
+    .case-info-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .case-info-item,
+    .case-info-item.description,
+    .case-info-item.additional-offenses,
+    .case-info-description,
+    .case-info-additional {
+        grid-column: span 1;
+    }
+
+}
