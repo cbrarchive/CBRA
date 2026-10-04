@@ -6347,230 +6347,138 @@ body:has(.case-header) .case-section h2::before {
 .case-information-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    border-top: 1px solid #c8c1b5;
+    border-left: 1px solid #c8c1b5;
     margin-top: 20px;
 }
 
-
-/* -----------------------------------------
-   INFORMATION CARDS
------------------------------------------ */
-
 .case-information-grid > div {
-    position: relative;
-    background: #f4f0e7;
-    border: 1px solid #b8ae9c;
-    padding: 18px 20px;
-    min-height: 78px;
+    padding: 15px 17px;
+    min-height: 70px;
     box-sizing: border-box;
-
-    box-shadow:
-        2px 2px 0 rgba(0, 0, 0, 0.06);
+    background: #f7f4ed;
+    border-right: 1px solid #c8c1b5;
+    border-bottom: 1px solid #c8c1b5;
 }
 
-
-/* Small file-tab detail */
-
-.case-information-grid > div::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-
-    width: 16px;
-    height: 16px;
-
-    background: #e4ded1;
-    border-left: 1px solid #b8ae9c;
-    border-bottom: 1px solid #b8ae9c;
-}
-
-
-/* -----------------------------------------
-   LABEL
------------------------------------------ */
-
+/* Labels */
 .case-information-grid strong {
     display: block;
+    margin-bottom: 6px;
 
-    margin-bottom: 8px;
-
-    font-family: monospace;
-    font-size: 0.7rem;
-    font-weight: 700;
-
-    letter-spacing: 0.1em;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 
-    color: #68707a;
+    color: #73777a;
 }
 
-
-/* -----------------------------------------
-   VALUE
------------------------------------------ */
-
+/* Values */
 .case-information-grid span {
     display: block;
 
-    color: #292e34;
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 500;
+    line-height: 1.45;
 
-    font-size: 1rem;
-    line-height: 1.4;
+    color: #292d31;
 }
 
-
-/* -----------------------------------------
-   DATE
------------------------------------------ */
-
-#case-date {
-    font-family: monospace;
-    font-weight: 600;
-}
-
-
-/* -----------------------------------------
-   CLASSIFICATION
------------------------------------------ */
-
-#case-classification {
-    font-weight: 600;
-}
-
-
-/* -----------------------------------------
-   OFFENSE
------------------------------------------ */
-
-#case-offense {
-    font-weight: 600;
-}
-
-
-/* -----------------------------------------
-   OUTCOME
------------------------------------------ */
-
+/* Slight emphasis on important fields */
+#case-classification,
+#case-offense,
 #case-outcome {
     font-weight: 600;
 }
 
+/* Date */
+#case-date {
+    font-weight: 500;
+}
 
-/* -----------------------------------------
-   ADDITIONAL OFFENSES
------------------------------------------ */
-
+/* Additional offenses */
 #case-additional-offenses {
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
 #case-additional-offenses .additional-offenses-list {
     margin: 0;
-    padding-left: 18px;
+    padding-left: 17px;
 }
 
 #case-additional-offenses .additional-offenses-list li {
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
-
-/* -----------------------------------------
-   VICTIM / FATALITY COUNTS
------------------------------------------ */
-
+/* Counts */
 #case-victims,
 #case-fatalities {
-    font-family: monospace;
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-weight: 600;
 }
 
-
-/* -----------------------------------------
-   DESCRIPTION
------------------------------------------ */
-
+/* Description */
 .case-description {
     margin-top: 18px;
+    padding: 20px 22px;
 
-    background: #ebe6da;
-    border: 1px solid #b8ae9c;
-
-    padding: 22px;
-
-    box-shadow:
-        2px 2px 0 rgba(0, 0, 0, 0.05);
+    background: #f3f0e8;
+    border: 1px solid #c8c1b5;
 }
 
 .case-description h3 {
-    margin-top: 0;
-    margin-bottom: 12px;
+    margin: 0 0 10px;
 
-    font-family: monospace;
-    font-size: 0.75rem;
-
-    letter-spacing: 0.1em;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 
-    color: #68707a;
+    color: #73777a;
 }
 
 .case-description p {
     margin: 0;
 
-    line-height: 1.75;
-    color: #343a40;
+    font-family: inherit;
+    font-size: 0.96rem;
+    line-height: 1.7;
+
+    color: #34383c;
 }
 
 
-/* -----------------------------------------
-   EMPHASIS BORDERS
------------------------------------------ */
+/* ------------------------------------------------------------
+   Subtle archive accents
+   ------------------------------------------------------------ */
 
-.case-information-grid > div:nth-child(1) {
-    border-top: 3px solid #59636d;
-}
-
-.case-information-grid > div:nth-child(5) {
-    border-top: 3px solid #74665d;
-}
-
-.case-information-grid > div:nth-child(6) {
-    border-top: 3px solid #59695c;
-}
-
+.case-information-grid > div:nth-child(1),
+.case-information-grid > div:nth-child(5),
+.case-information-grid > div:nth-child(6),
 .case-information-grid > div:nth-child(8) {
-    border-top: 3px solid #625d69;
+    border-top: 2px solid #858078;
 }
 
 
-/* -----------------------------------------
-   TABLET
------------------------------------------ */
+/* ------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------ */
 
 @media (max-width: 950px) {
-
     .case-information-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-
 }
 
-
-/* -----------------------------------------
-   MOBILE
------------------------------------------ */
-
 @media (max-width: 600px) {
-
     .case-information-grid {
         grid-template-columns: 1fr;
-        gap: 10px;
     }
 
     .case-information-grid > div {
         min-height: auto;
     }
-
 }
