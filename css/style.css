@@ -1601,17 +1601,18 @@ main > p {
     overflow-wrap: anywhere;
 }
 
-
 /* =========================================================
    26. SOURCES
    ========================================================= */
 
 .case-source {
+    position: relative;
+
     min-width: 0;
 
-    padding: 13px 0;
+    padding: 14px 0;
 
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid #c8c4ba;
 }
 
 .case-source:first-child {
@@ -1624,6 +1625,9 @@ main > p {
     border-bottom: none;
 }
 
+
+/* Source title */
+
 .source-title {
     display: inline-block;
 
@@ -1631,15 +1635,20 @@ main > p {
 
     color: var(--ink);
 
-    font-size: 14px;
+    font-family: var(--serif);
 
-    font-weight: 600;
+    font-size: 16px;
 
-    line-height: 1.45;
+    font-weight: 400;
+
+    line-height: 1.4;
 
     text-decoration: none;
 
     overflow-wrap: anywhere;
+
+    transition:
+        color var(--transition);
 }
 
 .source-title:hover {
@@ -1648,28 +1657,43 @@ main > p {
     text-decoration: underline;
 }
 
-.source-type {
-    margin-top: 3px;
 
-    color: var(--ink-muted);
+/* Source type */
+
+.source-type {
+    margin-top: 4px;
+
+    color: var(--accent);
 
     font-family: var(--mono);
 
     font-size: 8px;
 
+    font-weight: 600;
+
+    letter-spacing: 1px;
+
+    line-height: 1.4;
+
     text-transform: uppercase;
 }
 
-.source-date {
-    margin-top: 2px;
 
-    color: #99958c;
+/* Publication date */
+
+.source-date {
+    margin-top: 3px;
+
+    color: #8f8b82;
 
     font-family: var(--mono);
 
-    font-size: 9px;
-}
+    font-size: 8px;
 
+    letter-spacing: 0.6px;
+
+    line-height: 1.4;
+}
 
 /* =========================================================
    27. DOCUMENTS / LINKS / RELATED CASES
@@ -5443,36 +5467,70 @@ body:has(.case-header) .case-person span {
     color: #57534c !important;
 }
 
-
 /* ---------------------------------------------------------
    SOURCES
    --------------------------------------------------------- */
 
 body:has(.case-header) .source-item,
 body:has(.case-header) .source-card {
-    background: #e8e4da !important;
+    position: relative;
 
-    color: #292826 !important;
+    background:
+        linear-gradient(
+            180deg,
+            #e4e0d7,
+            #dedbd2
+        ) !important;
 
-    border-color: #c2bdb2 !important;
+    color: var(--ink) !important;
+
+    border: 1px solid #c5c1b7 !important;
+
+    border-left: 3px solid #aaa59a !important;
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.06);
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
 }
 
+
+body:has(.case-header) .source-item:hover,
+body:has(.case-header) .source-card:hover {
+    border-left-color: var(--accent) !important;
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.09);
+
+    transform: translateY(-1px);
+}
+
+
+/* Source headings */
 
 body:has(.case-header) .source-item h3,
 body:has(.case-header) .source-item h4,
 body:has(.case-header) .source-card h3,
 body:has(.case-header) .source-card h4 {
-    color: #292826 !important;
+    color: var(--ink) !important;
+
+    font-family: var(--serif);
+
+    font-weight: 400;
 }
 
+
+/* Source text */
 
 body:has(.case-header) .source-item p,
 body:has(.case-header) .source-item span,
 body:has(.case-header) .source-card p,
 body:has(.case-header) .source-card span {
-    color: #57534c !important;
+    color: var(--ink-soft) !important;
 }
-
 
 /* ---------------------------------------------------------
    PERSON PAGE
