@@ -5848,3 +5848,77 @@ body:has(.case-header) .case-section h2::before {
     transform: translateX(2px);
     transition: 0.15s ease;
 }
+
+/* =========================================
+   DOCUMENT GRID
+   ========================================= */
+
+#manage-documents-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+#manage-documents-list .manage-record {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   CBRA — CASE MEDIA GRID
+   ========================================= */
+
+#case-media-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+#case-media-list .manage-record {
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+#case-media-list .manage-record img {
+    width: 100%;
+    max-width: 100% !important;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    margin: 12px 0;
+    border-radius: 4px;
+}
+
+#manage-documents-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+    align-items: start;
+}
+
+#manage-documents-list .manage-record {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   CBRA — GENERAL MEDIA GRID
+   ========================================= */
+
+#media-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+#media-list .manage-record {
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
