@@ -6890,43 +6890,43 @@ body:has(.case-header) .case-section h2::before {
     }
 }
 
-/* SOURCE RECORDS / SOURCES HEADER FIX */
-
-#case-sources {
-    position: relative;
-}
+/* =========================================
+   FIX SOURCE RECORDS / SECTION LABEL
+   ========================================= */
 
 #case-sources > h2 {
-    position: relative !important;
     display: block !important;
+    position: relative !important;
+    width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     margin: 0 0 16px !important;
     padding: 0 0 11px !important;
+    box-sizing: border-box !important;
     overflow: visible !important;
     line-height: 1.3 !important;
 }
 
-/* "SOURCE RECORDS" banner */
+/* Small label above the heading */
 #case-sources > h2::before {
-    content: "SOURCE RECORDS";
+    content: "SOURCE RECORDS" !important;
     display: block !important;
     position: static !important;
-    width: fit-content !important;
+    width: auto !important;
     height: auto !important;
     margin: 0 0 6px !important;
     padding: 0 !important;
+    transform: none !important;
     color: var(--accent) !important;
     font-family: var(--mono) !important;
     font-size: 7px !important;
     font-weight: 600 !important;
     letter-spacing: 1.6px !important;
-    line-height: 1.3 !important;
+    line-height: 1.4 !important;
     white-space: nowrap !important;
-    transform: none !important;
 }
 
-/* Actual "Sources & References" title */
+/* Main heading */
 #case-sources > h2 {
     color: var(--ink) !important;
     font-family: var(--serif) !important;
