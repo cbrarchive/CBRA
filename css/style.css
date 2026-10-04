@@ -5121,6 +5121,220 @@ body:has(.case-header) .case-section h4 {
 
 /* ---------------------------------------------------------
    CASE INFORMATION
+   Matches the CBRA case-file / header aesthetic
+   --------------------------------------------------------- */
+
+body:has(.case-header) .case-information-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 0;
+
+    margin-top: 0;
+
+    background: #dedbd2;
+
+    border: 1px solid #bcb7ad;
+
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.08);
+
+    min-width: 0;
+}
+
+
+/* Individual fields */
+
+body:has(.case-header) .case-information-grid > div {
+    min-width: 0;
+    min-height: 72px;
+
+    padding: 15px 18px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.14),
+            rgba(255, 255, 255, 0.02)
+        );
+
+    border: none;
+
+    border-right: 1px solid #c5c1b7;
+    border-bottom: 1px solid #c5c1b7;
+
+    color: #282725;
+}
+
+
+/* Right column doesn't have a vertical line */
+
+body:has(.case-header) .case-information-grid > div:nth-child(even) {
+    border-right: none;
+}
+
+
+/* Last row doesn't have a bottom line */
+
+body:has(.case-header) .case-information-grid > div:nth-last-child(-n + 2) {
+    border-bottom: none;
+}
+
+
+/* Labels */
+
+body:has(.case-header) .case-information-grid strong {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #716d65;
+
+    font-family: var(--mono);
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+    letter-spacing: 1.1px;
+
+    line-height: 1.2;
+
+    text-transform: uppercase;
+}
+
+
+/* Values */
+
+body:has(.case-header) .case-information-grid span {
+    display: block;
+
+    color: #282725;
+
+    font-family: var(--sans);
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* Slightly stronger important information */
+
+body:has(.case-header) #case-classification,
+body:has(.case-header) #case-offense,
+body:has(.case-header) #case-outcome {
+    font-weight: 600;
+}
+
+
+/* Additional offenses */
+
+body:has(.case-header) #case-additional-offenses {
+    line-height: 1.5;
+}
+
+body:has(.case-header) #case-additional-offenses .additional-offenses-list {
+    margin: 0;
+
+    padding-left: 17px;
+}
+
+body:has(.case-header) #case-additional-offenses .additional-offenses-list li {
+    margin-bottom: 3px;
+}
+
+
+/* Counts */
+
+body:has(.case-header) #case-victims,
+body:has(.case-header) #case-fatalities {
+    font-family: var(--mono);
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+/* ---------------------------------------------------------
+   DESCRIPTION
+   --------------------------------------------------------- */
+
+body:has(.case-header) .case-description {
+    margin-top: 0;
+
+    padding: 18px;
+
+    background: #e1ded5;
+
+    border: 1px solid #c5c1b7;
+
+    border-top: none;
+
+    box-shadow: none;
+}
+
+body:has(.case-header) .case-description h3 {
+    margin: 0 0 8px;
+
+    color: #716d65;
+
+    font-family: var(--mono);
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+    letter-spacing: 1.1px;
+
+    text-transform: uppercase;
+}
+
+body:has(.case-header) .case-description p {
+    margin: 0;
+
+    max-width: 900px;
+
+    color: #45423d;
+
+    font-family: var(--sans);
+
+    font-size: 13px;
+
+    line-height: 1.65;
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    body:has(.case-header) .case-information-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body:has(.case-header) .case-information-grid > div {
+        border-right: none;
+        border-bottom: 1px solid #c5c1b7;
+    }
+
+    body:has(.case-header) .case-information-grid > div:last-child {
+        border-bottom: none;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CASE INFORMATION
    --------------------------------------------------------- */
 
 body:has(.case-header) .case-information,
