@@ -6166,71 +6166,34 @@ body:has(.case-header) .case-section h2::before {
     box-sizing: border-box;
     margin: 0;
 }
-
-/* =========================================
+/* =========================================================
    CBRA — PUBLIC CASE PAGE GRIDS
-   ========================================= */
+   ========================================================= */
 
-/* Documents */
-#case-documents {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    align-items: stretch;
-}
-
-/* Case Media */
-#case-media {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    align-items: stretch;
-}
-
-/* Crime Scene Photos */
-#case-crime-scene-photos {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    align-items: stretch;
-}
-
-/* Sources */
-#case-sources {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    align-items: stretch;
-}
-
-/* Additional Links */
-#case-links {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    align-items: stretch;
-}
-
-/* People */
-#case-people {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    align-items: stretch;
-}
-
-/* Related Cases */
+#case-documents,
+#case-media,
+#case-crime-scene-photos,
+#case-sources,
+#case-links,
+#case-people,
 #case-related {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
+
+    gap: 12px;
+
     align-items: stretch;
+
+    min-width: 0;
 }
 
 
-/* =========================================
-   PUBLIC MEDIA CARDS
-   ========================================= */
+/* =========================================================
+   PUBLIC CASE CARDS
+   Matches the case-file paper aesthetic
+   ========================================================= */
 
 .document-card,
 .media-card,
@@ -6239,54 +6202,262 @@ body:has(.case-header) .case-section h2::before {
 .case-link-card,
 .person-card,
 .related-case-card {
+    position: relative;
+
     height: 100%;
+
     box-sizing: border-box;
+
+    padding: 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e4e0d7,
+            #dedbd2
+        );
+
+    border: 1px solid #c5c1b7;
+
+    border-left: 3px solid #aaa59a;
+
+    color: var(--ink);
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.06);
+
+    overflow: hidden;
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
 }
 
 
-/* =========================================
-   CRIME SCENE PHOTO IMAGE
-   ========================================= */
+.document-card:hover,
+.media-card:hover,
+.crime-scene-photo-card:hover,
+.source-card:hover,
+.case-link-card:hover,
+.person-card:hover,
+.related-case-card:hover {
+    border-color: #aaa59f;
+
+    border-left-color: var(--accent);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.09);
+
+    transform: translateY(-1px);
+}
+
+
+/* Small archival marker */
+
+.document-card::before,
+.media-card::before,
+.crime-scene-photo-card::before,
+.source-card::before,
+.case-link-card::before,
+.person-card::before,
+.related-case-card::before {
+    content: "";
+
+    display: block;
+
+    width: 22px;
+
+    height: 2px;
+
+    margin-bottom: 10px;
+
+    background: var(--accent);
+}
+
+
+/* Card headings */
+
+.document-card h3,
+.media-card h3,
+.crime-scene-photo-card h3,
+.source-card h3,
+.case-link-card h3,
+.person-card h3,
+.related-case-card h3 {
+    margin-top: 0;
+
+    margin-bottom: 7px;
+
+    color: var(--ink);
+
+    font-family: var(--serif);
+
+    font-size: 18px;
+
+    font-weight: 400;
+
+    line-height: 1.3;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* Card text */
+
+.document-card p,
+.media-card p,
+.crime-scene-photo-card p,
+.source-card p,
+.case-link-card p,
+.person-card p,
+.related-case-card p {
+    margin: 5px 0;
+
+    color: var(--ink-soft);
+
+    font-family: var(--sans);
+
+    font-size: 12px;
+
+    line-height: 1.55;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* Metadata */
+
+.document-card .date,
+.media-card .date,
+.crime-scene-photo-card .date,
+.source-card .date,
+.case-link-card .date {
+    color: var(--ink-muted);
+
+    font-family: var(--mono);
+
+    font-size: 8px;
+
+    letter-spacing: 0.7px;
+
+    text-transform: uppercase;
+}
+
+
+/* Links */
+
+.document-card a,
+.media-card a,
+.source-card a,
+.case-link-card a,
+.person-card a,
+.related-case-card a {
+    color: var(--accent-dark);
+
+    text-decoration: none;
+}
+
+.document-card a:hover,
+.media-card a:hover,
+.source-card a:hover,
+.case-link-card a:hover,
+.person-card a:hover,
+.related-case-card a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   CRIME SCENE PHOTOS
+   ========================================================= */
 
 .crime-scene-photo-image {
     width: 100%;
+
     aspect-ratio: 16 / 10;
+
+    margin: -16px -16px 14px;
+
+    width: calc(100% + 32px);
+
     overflow: hidden;
+
+    background: #d1cec5;
+
+    border-bottom: 1px solid #c5c1b7;
 }
 
 .crime-scene-photo-image img {
+    display: block;
+
     width: 100%;
     height: 100%;
+
     object-fit: cover;
-    display: block;
 }
 
 
-/* =========================================
+/* =========================================================
    MEDIA CONTENT
-   ========================================= */
+   ========================================================= */
 
 .case-media-content {
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
 
-/* =========================================
-   DOCUMENT / MEDIA LINKS
-   ========================================= */
+/* =========================================================
+   CARD LINKS
+   ========================================================= */
 
 .document-card > a,
 .media-card a,
 .case-link-card > a,
 .source-card > a {
     display: inline-block;
-    margin-top: 10px;
+
+    margin-top: 9px;
+
+    font-family: var(--mono);
+
+    font-size: 9px;
+
+    letter-spacing: 0.5px;
+
+    text-transform: uppercase;
 }
 
 
-/* =========================================
+/* =========================================================
+   PERSON CARDS
+   ========================================================= */
+
+.person-card {
+    border-left-color: #8a877e;
+}
+
+.person-card h3 {
+    margin-bottom: 5px;
+}
+
+.person-card p {
+    margin: 3px 0;
+}
+
+
+/* =========================================================
+   RELATED CASES
+   ========================================================= */
+
+.related-case-card {
+    border-left-color: #8a877e;
+}
+
+
+/* =========================================================
    MOBILE
-   ========================================= */
+   ========================================================= */
 
 @media (max-width: 700px) {
 
@@ -6299,239 +6470,287 @@ body:has(.case-header) .case-section h2::before {
     #case-related {
         grid-template-columns: 1fr;
     }
-
 }
 
-/* ============================================================
-   CBRA — PERSON PAGE GRID
-   ============================================================ */
 
-/* -----------------------------
-   Person Cases
------------------------------ */
+/* =========================================================
+   CBRA — PERSON PAGE
+   ========================================================= */
 
-#person-cases {
+
+/* ---------------------------------------------------------
+   PERSON CASES
+   --------------------------------------------------------- */
+
+#person-cases,
+#person-documents,
+#person-sources,
+#person-mental-health {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
+
+    gap: 12px;
+
+    margin-top: 18px;
+
+    min-width: 0;
 }
 
-.person-case-card {
-    background: #f5f1e8;
-    border: 1px solid #b8ad98;
-    border-left: 5px solid #5d6470;
-    padding: 20px;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.08);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+.person-case-card,
+.person-document-card,
+.person-source-card,
+.person-mental-health-card {
+    position: relative;
+
+    min-width: 0;
+
+    padding: 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e4e0d7,
+            #dedbd2
+        );
+
+    border: 1px solid #c5c1b7;
+
+    border-left: 3px solid #8a877e;
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.06);
+
+    color: var(--ink);
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
 }
 
-.person-case-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.12);
+
+.person-case-card:hover,
+.person-document-card:hover,
+.person-source-card:hover,
+.person-mental-health-card:hover {
+    border-left-color: var(--accent);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.09);
+
+    transform: translateY(-1px);
 }
 
-.person-case-card h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
+
+.person-case-card::before,
+.person-document-card::before,
+.person-source-card::before,
+.person-mental-health-card::before {
+    content: "";
+
+    display: block;
+
+    width: 22px;
+
+    height: 2px;
+
+    margin-bottom: 10px;
+
+    background: var(--accent);
 }
 
-.person-case-card h3 a {
-    color: #252b33;
+
+.person-case-card h3,
+.person-document-card h3,
+.person-source-card h3,
+.person-mental-health-card h3 {
+    margin: 0 0 8px;
+
+    color: var(--ink);
+
+    font-family: var(--serif);
+
+    font-size: 18px;
+
+    font-weight: 400;
+
+    line-height: 1.3;
+}
+
+
+.person-case-card h3 a,
+.person-document-card h3 a,
+.person-source-card h3 a,
+.person-mental-health-card h3 a {
+    color: var(--ink);
+
     text-decoration: none;
 }
 
-.person-case-card h3 a:hover {
+
+.person-case-card h3 a:hover,
+.person-document-card h3 a:hover,
+.person-source-card h3 a:hover,
+.person-mental-health-card h3 a:hover {
+    color: var(--accent-dark);
+
     text-decoration: underline;
 }
 
-.person-case-card p {
-    margin: 8px 0;
+
+.person-case-card p,
+.person-document-card p,
+.person-source-card p,
+.person-mental-health-card p {
+    margin: 5px 0;
+
+    color: var(--ink-soft);
+
+    font-family: var(--sans);
+
+    font-size: 12px;
+
+    line-height: 1.55;
 }
 
 
-/* -----------------------------
-   Mugshots
------------------------------ */
+/* ---------------------------------------------------------
+   MUGSHOTS
+   --------------------------------------------------------- */
 
 #person-mugshots {
-    margin-top: 20px;
+    margin-top: 18px;
 }
 
 .person-mugshot-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(220px, 1fr));
+
+    gap: 12px;
+
+    margin-top: 18px;
 }
+
 
 .person-mugshot-card {
-    background: #f5f1e8;
-    border: 1px solid #b8ad98;
-    padding: 15px;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.08);
+    min-width: 0;
+
+    padding: 10px;
+
+    background: #dedbd2;
+
+    border: 1px solid #c5c1b7;
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.06);
 }
+
 
 .person-mugshot-card img {
+    display: block;
+
     width: 100%;
     height: 300px;
+
     object-fit: contain;
-    background: #dcd7cc;
-    border: 1px solid #aaa398;
-    display: block;
+
+    background: #d1cec5;
+
+    border: 1px solid #bdb8ad;
 }
+
 
 .person-mugshot-card h3 {
-    margin: 14px 0 8px;
+    margin: 12px 2px 7px;
+
+    color: var(--ink);
+
+    font-family: var(--serif);
+
+    font-size: 17px;
+
+    font-weight: 400;
 }
+
 
 .person-mugshot-card p {
-    margin: 7px 0;
+    margin: 5px 2px;
+
+    color: var(--ink-soft);
+
+    font-size: 11px;
+
+    line-height: 1.5;
 }
 
 
-/* -----------------------------
-   Documents
------------------------------ */
-
-#person-documents {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.person-document-card {
-    background: #f5f1e8;
-    border: 1px solid #b8ad98;
-    border-left: 5px solid #6b596f;
-    padding: 20px;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.08);
-}
-
-.person-document-card h3 {
-    margin-top: 0;
-}
-
-.person-document-card h3 a {
-    color: #252b33;
-    text-decoration: none;
-}
-
-.person-document-card h3 a:hover {
-    text-decoration: underline;
-}
-
-
-/* -----------------------------
-   Sources
------------------------------ */
-
-#person-sources {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.person-source-card {
-    background: #f5f1e8;
-    border: 1px solid #b8ad98;
-    border-left: 5px solid #68745e;
-    padding: 20px;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.08);
-}
-
-.person-source-card h3 {
-    margin-top: 0;
-}
-
-.person-source-card h3 a {
-    color: #252b33;
-    text-decoration: none;
-}
-
-.person-source-card h3 a:hover {
-    text-decoration: underline;
-}
-
-
-/* -----------------------------
-   Mental Health / Behavioral
------------------------------ */
-
-#person-mental-health {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.person-mental-health-card {
-    background: #f5f1e8;
-    border: 1px solid #b8ad98;
-    border-left: 5px solid #795f58;
-    padding: 20px;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.08);
-}
-
-.person-mental-health-card h3 {
-    margin-top: 0;
-}
-
-.person-mental-health-card h3 a {
-    color: #252b33;
-    text-decoration: none;
-}
-
-.person-mental-health-card h3 a:hover {
-    text-decoration: underline;
-}
-
-
-/* -----------------------------
-   Admin Buttons Inside Cards
------------------------------ */
+/* ---------------------------------------------------------
+   ADMIN BUTTONS
+   --------------------------------------------------------- */
 
 .cbra-admin-only {
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
 .cbra-admin-only button {
-    margin-right: 6px;
-    margin-bottom: 6px;
+    margin-right: 5px;
+
+    margin-bottom: 5px;
 }
 
 
-/* -----------------------------
-   Person Sections
------------------------------ */
+/* ---------------------------------------------------------
+   PERSON SECTIONS
+   --------------------------------------------------------- */
 
 #person-profile > section {
-    margin-top: 35px;
+    margin-top: 18px;
 }
+
 
 #person-profile > section > h2 {
-    border-bottom: 2px solid #4f5863;
-    padding-bottom: 8px;
-    margin-bottom: 15px;
+    padding-bottom: 10px;
+
+    margin-bottom: 14px;
+
+    border-bottom: 1px solid #c5c1b7;
+
+    color: var(--ink);
+
+    font-family: var(--serif);
+
+    font-size: 23px;
+
+    font-weight: 400;
 }
 
 
-/* -----------------------------
-   Admin Forms
------------------------------ */
+/* ---------------------------------------------------------
+   ADMIN FORMS
+   --------------------------------------------------------- */
 
 #edit-person-form,
 #person-mugshot-form,
 #person-document-form,
 #person-source-form,
 #mental-health-document-form {
-    background: #ebe6da;
-    border: 1px solid #aaa08d;
-    border-left: 5px solid #4f5863;
     padding: 20px;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.08);
+
+    background: #e1ded5;
+
+    border: 1px solid #c5c1b7;
+
+    border-left: 3px solid #8a877e;
+
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.07);
 }
+
 
 #edit-person-form input,
 #edit-person-form textarea,
@@ -6548,15 +6767,17 @@ body:has(.case-header) .case-section h2::before {
 #mental-health-document-form input,
 #mental-health-document-form textarea,
 #mental-health-document-form select {
-    max-width: 600px;
     width: 100%;
+
+    max-width: 600px;
+
     box-sizing: border-box;
 }
 
 
-/* -----------------------------
-   Mobile
------------------------------ */
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
 
 @media (max-width: 700px) {
 
@@ -6574,14 +6795,12 @@ body:has(.case-header) .case-section h2::before {
     .person-mugshot-card img {
         height: 240px;
     }
-
 }
+
 
 @media (max-width: 450px) {
 
     .person-mugshot-gallery {
         grid-template-columns: 1fr;
     }
-
 }
-
