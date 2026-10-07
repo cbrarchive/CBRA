@@ -18,7 +18,7 @@ const sourcesSupabase = window.supabaseClient;
 const SOURCE_TYPES = [
     "News Report",
     "Government",
-    "YouTube TCC",
+    "YouTube",
     "Documentary",
     "Book",
     "Other"
