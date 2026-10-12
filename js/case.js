@@ -1098,28 +1098,24 @@ async function loadTags() {
 
 }
 
-
 /* =========================================
-   LOAD CRIME SCENE PHOTOS
+   LOAD CRIME SCENE PHOTOS — DEBUG
    ========================================= */
 
 async function loadCrimeScenePhotos() {
 
-    const container =
-        document.getElementById(
-            "case-crime-scene-photos"
-        );
+    const container = document.getElementById(
+        "case-crime-scene-photos"
+    );
 
     if (!container) return;
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from(
-                "case_crime_scene_photos"
-            )
+    container.innerHTML = "<p>Loading crime scene photos...</p>";
+
+    try {
+
+        const { data, error } = await supabaseClient
+            .from("case_crime_scene_photos")
             .select(`
                 id,
                 title,
@@ -1131,181 +1127,109 @@ async function loadCrimeScenePhotos() {
                 warning_type,
                 warning_text
             `)
-            .eq(
-                "case_id",
-                caseId
+            .eq("case_id", caseId);
+
+        if (error) {
+            console.error("Crime scene photo error:", error);
+
+            container.innerHTML = "";
+
+            const message = document.createElement("pre");
+            message.style.cssText =
+                "white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:#fff0f0;color:#900;border:1px solid #c00;border-radius:8px;";
+
+            message.textContent =
+                "PHOTO LOADING ERROR\n\n" +
+                "Message: " + (error.message || "Unknown") + "\n" +
+                "Code: " + (error.code || "None") + "\n" +
+                "Details: " + (error.details || "None") + "\n" +
+                "Hint: " + (error.hint || "None");
+
+            container.appendChild(message);
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            showEmpty(
+                "case-crime-scene-photos",
+                "No crime scene photos are available."
             );
+            return;
+        }
 
-    if (error) {
-
-        console.error(
-            "CBRA: Error loading crime scene photos:",
-            error
-        );
-
-        showEmpty(
-            "case-crime-scene-photos",
-            "Unable to load crime scene photos."
-        );
-
-        return;
-
-    }
-
-    if (!data || data.length === 0) {
-
-        showEmpty(
-            "case-crime-scene-photos",
-            "No crime scene photos are available."
-        );
-
-        return;
-
-    }
-
-    data.sort(
-        (a, b) => {
-
+        data.sort((a, b) => {
             if (!a.date_taken) return 1;
-
             if (!b.date_taken) return -1;
 
-            return (
-                new Date(a.date_taken) -
-                new Date(b.date_taken)
-            );
+            return new Date(a.date_taken) - new Date(b.date_taken);
+        });
 
-        }
-    );
+        container.innerHTML = "";
 
+        data.forEach(photo => {
 
-    container.innerHTML = "";
+            const card = document.createElement("div");
+            card.className = "crime-scene-photo-card";
 
+            const imageArea = document.createElement("div");
+            imageArea.className = "crime-scene-photo-image";
 
-    data.forEach(photo => {
+            const info = document.createElement("div");
+            info.className = "crime-scene-photo-info";
 
-        const card =
-            document.createElement(
-                "div"
-            );
+            const title = document.createElement("h3");
+            title.textContent = photo.title || "Untitled Photo";
+            info.appendChild(title);
 
-        card.className =
-            "crime-scene-photo-card";
-
-
-        const imageArea =
-            document.createElement(
-                "div"
-            );
-
-        imageArea.className =
-            "crime-scene-photo-image";
-
-
-        const info =
-            document.createElement(
-                "div"
-            );
-
-        info.className =
-            "crime-scene-photo-info";
-
-
-        const title =
-            document.createElement(
-                "h3"
-            );
-
-        title.textContent =
-            photo.title ||
-            "Untitled Photo";
-
-        info.appendChild(
-            title
-        );
-
-
-        const date =
-            document.createElement(
-                "p"
-            );
-
-        date.innerHTML =
-            "<strong>Date Taken:</strong> " +
-            escapeHTML(
-                photo.date_taken
-                    ? formatDate(
-                        photo.date_taken
-                    )
-                    : "—"
-            );
-
-        info.appendChild(
-            date
-        );
-
-
-        if (
-            photo.description
-        ) {
-
-            const description =
-                document.createElement(
-                    "p"
+            const date = document.createElement("p");
+            date.innerHTML =
+                "<strong>Date Taken:</strong> " +
+                escapeHTML(
+                    photo.date_taken
+                        ? formatDate(photo.date_taken)
+                        : "—"
                 );
 
-            description.textContent =
-                photo.description;
+            info.appendChild(date);
 
-            info.appendChild(
-                description
-            );
+            if (photo.description) {
+                const description = document.createElement("p");
+                description.textContent = photo.description;
+                info.appendChild(description);
+            }
 
-        }
+            card.appendChild(imageArea);
+            card.appendChild(info);
+            container.appendChild(card);
 
-
-        card.appendChild(
-            imageArea
-        );
-
-        card.appendChild(
-            info
-        );
-
-
-        container.appendChild(
-            card
-        );
-
-
-        const revealImage =
-            function() {
-
-                const image =
-                    createCaseMediaImage(
-                        photo
-                    );
-
-                imageArea.innerHTML =
-                    "";
-
-                imageArea.appendChild(
-                    image
-                );
-
+            const revealImage = function() {
+                const image = createCaseMediaImage(photo);
+                imageArea.innerHTML = "";
+                imageArea.appendChild(image);
             };
 
+            addSensitiveMediaContent(
+                imageArea,
+                photo,
+                revealImage
+            );
+        });
 
-        addSensitiveMediaContent(
-            imageArea,
-            photo,
-            revealImage
-        );
+    } catch (error) {
 
-    });
+        container.innerHTML = "";
 
+        const message = document.createElement("pre");
+        message.style.cssText =
+            "white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:#fff0f0;color:#900;";
+
+        message.textContent =
+            "PHOTO LOADING FAILED\n\n" +
+            (error?.message || String(error));
+
+        container.appendChild(message);
+    }
 }
-
 
 /* =========================================
    LOAD MEDIA
